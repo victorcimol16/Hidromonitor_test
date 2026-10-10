@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#081d38" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<title>HidroMonitor — Dúvidas e Sugestões</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --navy:      #0a2140;
+    --navy-deep: #071a33;
+    --glow:      #16406f;
+    --teal:      #16c6c1;
+    --teal-d:    #10a8a3;
+    --teal-lt:   #62e0dc;
+    --blue:      #2f74e0;
+    --on-navy:   #f4f9ff;
+    --on-navy-2: #a6bdd9;
+    --card:      #ffffff;
+    --field:     #f1f5f9;
+    --field-2:   #f7fafc;
+    --card-line: #e4e9f1;
+    --card-ink:  #10294a;
+    --card-mut:  #64748b;
+    --erro:      #e05656;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html {
+    /* branco: pinta a safe area inferior do iPhone de branco (igual ao rodapé).
+       O corpo azul cobre o resto, então só aparece branco quando rola até o fim. */
+    background: #ffffff;
+    -webkit-text-size-adjust: 100%;
+    overflow-x: hidden;
+    overscroll-behavior: none; /* sem "efeito elástico" revelando faixa escura no iPhone */
+  }
+
+  body {
+    font-family: "Inter", ui-sans-serif, system-ui, -apple-system, Roboto, Arial, sans-serif;
+    color: var(--on-navy);
+    background:
+      radial-gradient(1100px 640px at 22% 8%, var(--glow) 0%, rgba(22,64,111,0) 58%),
+      linear-gradient(180deg, #0c2748 0%, var(--navy) 45%, var(--navy-deep) 100%);
+    background-color: var(--navy);
+    min-height: 100vh;
+    min-height: 100dvh;
+    width: 100%;
+    padding-top: 90px;
+    overflow-x: hidden;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .wrap {
+    width: 100%; max-width: 1080px; margin: 0 auto;
+    flex: 1 0 auto;
+    padding:
+      max(18px, env(safe-area-inset-top))
+      max(22px, env(safe-area-inset-right))
+      10px
+      max(22px, env(safe-area-inset-left));
+  }
+
+  /* ---------- navbar igual à landing page ---------- */
+  .nav {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 50;
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
+  }
+  .nav-inner {
+    pointer-events: auto;
+    width: min(72rem, calc(100% - 1.5rem));
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    border: 1px solid rgba(255,255,255,.25);
+    border-radius: 9999px;
+    background: rgba(255,255,255,.15);
+    padding: 12px 20px;
+    -webkit-backdrop-filter: blur(24px);
+    backdrop-filter: blur(24px);
+    box-shadow: 0 8px 32px rgba(0,0,0,.28);
+  }
+  .brand { display: flex; align-items: center; gap: 10px; min-width: 0; text-decoration: none; }
+  .brand .mark {
+    width: 36px; height: 36px; flex: none;
+    display: grid; place-items: center;
+  }
+  .brand .mark img { width: 100%; height: 100%; object-fit: contain; }
+  .brand .name {
+    font-size: 1.25rem; font-weight: 600; letter-spacing: -0.025em;
+    white-space: nowrap; color: #f4f9ff;
+    text-shadow: 0 1px 8px rgba(0,0,0,.35);
+  }
+  .brand .name .hidro { color: #5B9BFF; }
+  .brand .name .monitor { color: #5FD0FF; }
+  .nav-actions {
+    display: flex; align-items: center; gap: 6px;
+  }
+  .nav-actions .login {
+    font-size: 0.875rem; font-weight: 600; color: rgba(244,249,255,.9);
+    text-decoration: none; padding: 8px 12px; border-radius: 999px;
+    transition: color .15s;
+  }
+  .nav-actions .login:hover { color: #5FD0FF; }
+  .nav-actions .buy {
+    display: none;
+    font-size: 0.875rem; font-weight: 600; color: #fff;
+    text-decoration: none; background: #1E4FA6;
+    padding: 9px 20px; border-radius: 999px;
+    transition: background .15s;
+  }
+  .nav-actions .buy:hover { background: #1a4494; }
+  /* botao redondo do Instagram — fica visivel em qualquer largura, ao
+     contrario do .buy, que some abaixo de 640px */
+  .nav-actions .social {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 38px; height: 38px; flex: none;
+    border-radius: 999px;
+    color: rgba(244,249,255,.92);
+    border: 1px solid rgba(255,255,255,.28);
+    background: rgba(255,255,255,.10);
+    transition: background .15s, color .15s;
+  }
+  .nav-actions .social:hover { background: rgba(255,255,255,.20); color: #5FD0FF; }
+  .nav-actions .social svg { width: 19px; height: 19px; }
+  @media (min-width: 640px) {
+    .nav-actions .buy { display: inline-flex; }
+  }
+
+  /* ---------- hero: duas colunas ---------- */
+  .hero {
+    display: grid; grid-template-columns: 1fr; gap: 42px;
+    align-items: center; padding: 8px 0 40px;
+  }
+  @media (min-width: 860px) {
+    .hero { grid-template-columns: 1.05fr .95fr; gap: 56px; }
+  }
+
+  .eyebrow {
+    display: inline-block;
+    font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--teal-lt);
+    background: rgba(22,198,193,.10);
+    border: 1px solid rgba(22,198,193,.28);
+    padding: 7px 14px; border-radius: 30px; margin-bottom: 22px;
+  }
+  .lead h1 {
+    font-family: "Playfair Display", Georgia, "Times New Roman", serif;
+    font-weight: 800;
+    font-size: clamp(38px, 6vw, 62px);
+    line-height: 1.02;
+    letter-spacing: -.5px;
+    margin-bottom: 22px;
+  }
+  .lead p {
+    color: var(--on-navy-2); font-size: 17px; max-width: 44ch; margin-bottom: 30px;
+  }
+  .steps { list-style: none; display: grid; gap: 16px; }
+  .steps li { display: flex; gap: 13px; align-items: center; }
+  .steps .n {
+    flex: none; width: 30px; height: 30px; border-radius: 9px;
+    display: grid; place-items: center;
+    background: rgba(22,198,193,.12); border: 1px solid rgba(22,198,193,.3);
+    color: var(--teal-lt); font-weight: 700; font-size: 14px;
+  }
+  .steps .t { font-size: 15px; }
+  .steps .t b { font-weight: 600; }
+  .steps .t span { color: var(--on-navy-2); }
+
+  /* ---------- cartão branco do formulário ---------- */
+  .card {
+    background: var(--card);
+    border-radius: 22px;
+    padding: 30px 28px 32px;
+    box-shadow: 0 30px 70px rgba(3, 16, 34, .5);
+    color: var(--card-ink);
+  }
+  .card .card-top {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px;
+  }
+  .card h2 { font-size: 19px; font-weight: 700; }
+  .card .pill {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-size: 12px; font-weight: 700; color: var(--teal-d);
+    background: rgba(22,198,193,.12); padding: 6px 12px; border-radius: 30px;
+  }
+  .card .pill .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--teal); }
+
+  label {
+    display: block; font-weight: 600; font-size: 13px;
+    margin-bottom: 7px; color: #33405a;
+  }
+  label .opt { font-weight: 500; color: #8a97ad; }
+  .field { margin-bottom: 16px; }
+
+  /* aviso da LGPD: dados técnicos de acesso são registrados */
+  .aviso-dados {
+    margin-top: 14px; font-size: 11.5px; line-height: 1.45;
+    color: var(--card-mut); text-align: center;
+  }
+  .aviso-dados a { color: var(--card-mut); text-decoration: underline; }
+
+  input, textarea {
+    width: 100%; padding: 12px 13px;
+    border: 1px solid var(--card-line); border-radius: 10px;
+    font-size: 15px; font-family: inherit;
+    color: var(--card-ink); background: var(--field-2);
+    transition: border-color .15s, box-shadow .15s, background .15s;
+  }
+  input::placeholder, textarea::placeholder { color: #9aa7bb; }
+  input:focus, textarea:focus {
+    outline: none; background: #fff;
+    border-color: var(--teal); box-shadow: 0 0 0 3px rgba(22,198,193,.18);
+  }
+  textarea { resize: vertical; min-height: 100px; }
+
+  .send {
+    width: 100%; margin-top: 8px; padding: 15px;
+    border: none; border-radius: 12px;
+    background: var(--teal); color: #06302e;
+    font-size: 15.5px; font-weight: 700; font-family: inherit;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 9px;
+    transition: background .15s, transform .12s;
+  }
+  .send:hover { background: var(--teal-d); transform: translateY(-1px); }
+  .send:active { transform: translateY(0); }
+  .send svg { width: 18px; height: 18px; }
+
+  .err { color: var(--erro); font-size: 12.5px; margin-top: 6px; display: none; }
+  .field.bad input, .field.bad textarea { border-color: var(--erro); background: #fff; }
+  .field.bad .err { display: block; }
+
+  .status { text-align: center; margin-top: 13px; font-size: 13.5px; font-weight: 600; min-height: 18px; color: var(--card-mut); }
+  .status.ok { color: var(--teal-d); }
+
+  /* ---------- janela de confirmação ---------- */
+  .modal {
+    position: fixed; inset: 0; z-index: 60;
+    background: rgba(4, 12, 24, .62);
+    -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+    display: none; align-items: center; justify-content: center;
+    padding: 22px;
+  }
+  .modal.open { display: flex; animation: fade .18s ease; }
+  @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+  .modal-box {
+    background: #fff; color: var(--card-ink);
+    border-radius: 20px; padding: 32px 28px 26px;
+    max-width: 390px; width: 100%; text-align: center;
+    box-shadow: 0 30px 80px rgba(3, 16, 34, .55);
+  }
+  .modal-ico {
+    width: 58px; height: 58px; border-radius: 50%;
+    background: rgba(22, 198, 193, .14); color: var(--teal-d);
+    display: grid; place-items: center; margin: 0 auto 16px;
+  }
+  .modal-ico svg { width: 30px; height: 30px; }
+  .modal-box h3 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+  .modal-box p { color: var(--card-mut); font-size: 14.5px; margin-bottom: 22px; line-height: 1.5; }
+  .modal-box .send { margin-top: 0; }
+  .modal-close {
+    margin-top: 10px; width: 100%;
+    background: none; border: none; color: var(--card-mut);
+    font-size: 14px; font-weight: 600; font-family: inherit; cursor: pointer; padding: 9px;
+  }
+  .modal-close:hover { color: var(--card-ink); }
+
+  /* ---------- onda + rodapé branco ---------- */
+  .wave {
+    display: block; width: 100%; height: 78px;
+    margin-top: 34px; margin-bottom: -1px; /* evita fresta escura entre onda e rodapé */
+    flex: none;
+  }
+  .footer {
+    flex: none;
+    background: #fff; color: #47566d;
+    text-align: center;
+    /* o padding-bottom estica o branco até a borda inferior real (safe area do iPhone) */
+    padding: 22px 22px calc(26px + env(safe-area-inset-bottom));
+    font-size: 13px;
+  }
+  .footer strong { color: var(--card-ink); font-weight: 700; }
+  .footer .sub { color: #7a879c; margin-top: 4px; font-size: 12.5px; }
+  .footer .redes { margin-top: 12px; }
+  .footer .redes a {
+    display: inline-flex; align-items: center; gap: 7px;
+    color: #47566d; text-decoration: none;
+    font-size: 13px; font-weight: 600;
+    transition: color .15s;
+  }
+  .footer .redes a:hover { color: var(--card-ink); }
+  .footer .redes svg { width: 16px; height: 16px; }
+
+  /* ---------- ajustes de celular ---------- */
+  @media (max-width: 560px) {
+    .nav { padding: 8px 10px 8px 8px; margin-bottom: 40px; }
+    .brand { gap: 8px; }
+    .brand .mark { width: 28px; height: 28px; }
+    .brand .name { font-size: 16.5px; }
+    .nav .tag { font-size: 11px; padding: 7px 12px; gap: 6px; }
+    .lead h1 { font-size: clamp(30px, 8.5vw, 40px); }
+    .lead p { font-size: 15.5px; }
+    .card { padding: 24px 20px 26px; }
+  }
+  @media (max-width: 360px) {
+    .nav .tag { display: none; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+
+    <!-- navbar igual à landing page -->
+    <div class="nav">
+      <div class="nav-inner">
+        <a class="brand" href="/">
+          <span class="mark">
+            <img src="/sugestao/logo.png" alt="HidroMonitor" width="36" height="36" />
+          </span>
+          <span class="name"><span class="hidro">Hidro</span><span class="monitor">Monitor</span></span>
+        </a>
+        <div class="nav-actions">
+          <a class="social" href="https://instagram.com/hidromonitor" target="_blank"
+             rel="noopener noreferrer" aria-label="Instagram do HidroMonitor" title="Instagram">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+          </a>
+          <a class="buy" href="/">Contato</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- hero -->
+    <div class="hero">
+
+      <!-- esquerda: apresentação -->
+      <div class="lead">
+        <span class="eyebrow">Dúvidas &amp; Sugestões</span>
+        <h1>Fale direto com a nossa&nbsp;equipe.</h1>
+        <p>
+          Tem alguma pergunta sobre o HidroMonitor ou uma ideia pra melhorar o projeto?
+          Envie pelo formulário — sua mensagem chega na hora, pelo WhatsApp.
+        </p>
+        <ul class="steps">
+          <li><span class="n">1</span><span class="t"><b>Deixe seus dados</b> <span>— nome e telefone (e-mail é opcional)</span></span></li>
+          <li><span class="n">2</span><span class="t"><b>Escreva sua mensagem</b> <span>— dúvida ou sugestão</span></span></li>
+          <li><span class="n">3</span><span class="t"><b>Enviar</b> <span>— falamos com você pelo WhatsApp</span></span></li>
+        </ul>
+      </div>
+
+      <!-- direita: cartão do formulário -->
+      <div class="card">
+        <div class="card-top">
+          <h2>Enviar mensagem</h2>
+        </div>
+
+        <form id="form" novalidate>
+          <div class="field" id="c-nome">
+            <label for="nome">Nome</label>
+            <input type="text" id="nome" name="nome" placeholder="Seu nome" autocomplete="name" />
+            <span class="err">Informe seu nome.</span>
+          </div>
+
+          <div class="field" id="c-email">
+            <label for="email">E-mail <span class="opt">(opcional)</span></label>
+            <input type="email" id="email" name="email" placeholder="voce@email.com" autocomplete="email" />
+            <span class="err">Informe um e-mail válido.</span>
+          </div>
+
+          <div class="field" id="c-telefone">
+            <label for="telefone">Telefone / WhatsApp</label>
+            <input type="tel" id="telefone" name="telefone" placeholder="(51) 99999-9999" autocomplete="tel" />
+            <span class="err">Informe seu número.</span>
+          </div>
+
+          <div class="field" id="c-mensagem">
+            <label for="mensagem">Mensagem</label>
+            <textarea id="mensagem" name="mensagem" placeholder="Escreva sua dúvida ou sugestão..."></textarea>
+            <span class="err">Escreva sua mensagem.</span>
+          </div>
+
+          <button type="submit" class="send">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+            Enviar
+          </button>
+
+          <div class="status" id="status"></div>
+
+          <!-- AVISO DE DADOS (LGPD) — removido da tela a pedido, enquanto o funil
+               nao esta ativo e nada e gravado.
+          
+               RESTAURE ESTE BLOCO ao ligar o funil (chave de servico + migracao):
+               a partir dali passam a ser gravados IP e identificador de aparelho,
+               que sao dados pessoais pela Lei 13.709/2018 e exigem o aviso.
+               <p class="aviso-dados">
+               Registramos dados técnicos do acesso (tipo de aparelho, sistema, navegador e IP
+               aproximado) para melhorar esta página. Para pedir a exclusão dos seus dados, escreva
+               para <a href="mailto:kohlrauschvictor@gmail.com">kohlrauschvictor@gmail.com</a>.
+               </p>
+          -->
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- onda branca -->
+  <svg class="wave" viewBox="0 0 1440 78" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path fill="#ffffff" d="M0,40 C300,86 560,8 840,34 C1080,56 1280,72 1440,52 L1440,78 L0,78 Z"/>
+  </svg>
+  <footer class="footer">
+    <strong>HidroMonitor</strong> — Taquara Summit
+    <div class="sub">Prevenção e monitoramento em tempo real do fluxo de água</div>
+    <div class="redes">
+      <a href="https://instagram.com/hidromonitor" target="_blank" rel="noopener noreferrer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+        @hidromonitor
+      </a>
+    </div>
+  </footer>
+
+  <!-- janela de confirmação -->
+  <div class="modal" id="modal" role="dialog" aria-modal="true">
+    <div class="modal-box">
+      <div class="modal-ico">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+             stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+      </div>
+      <h3>Mensagem enviada!</h3>
+      <p>Recebemos sua mensagem. Quer conversar com a nossa equipe agora pelo WhatsApp?</p>
+      <button type="button" class="send" id="go-wa">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.7 15l-1.3 4.9 5-1.3A10 10 0 1 0 12 2zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8 8 0 1 1 12 20zm4.4-6c-.2-.1-1.4-.7-1.6-.8-.2-.1-.4-.1-.5.1-.2.2-.6.8-.7.9-.1.1-.3.2-.5 0-.2-.1-1-.4-1.9-1.2-.7-.6-1.2-1.4-1.3-1.6-.1-.2 0-.4.1-.5l.4-.5c.1-.2.1-.3.2-.4.1-.2 0-.3 0-.5 0-.1-.5-1.3-.7-1.8-.2-.4-.4-.4-.5-.4h-.5c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 2s.8 2.3.9 2.4c.1.2 1.7 2.6 4.1 3.6.6.3 1 .4 1.4.5.6.2 1.1.2 1.5.1.5-.1 1.4-.6 1.6-1.1.2-.6.2-1 .1-1.1 0-.1-.2-.2-.4-.3z"/></svg>
+        Conversar no WhatsApp
+      </button>
+      <button type="button" class="modal-close" id="close-modal">Agora não</button>
+    </div>
+  </div>
+
+<script>
+  /* ======================================================================
+     CONFIGURAÇÃO
+     ====================================================================== */
+
+  // Números da equipe (DDI 55 + DDD + número). Um é sorteado por acesso.
+  const NUMEROS = [
+    "5551997367548",   // 51 99736-7548
+    "5554992681225",   // 54 99268-1225
+    "5551980645140"    // 51 98064-5140
+  ];
+
+  // E-mail que recebe o aviso de cada mensagem.
+  const EMAIL_AVISO = "kohlrauschvictor@gmail.com";
+
+  /* ====================================================================== */
+
+  const WHATSAPP = NUMEROS[Math.floor(Math.random() * NUMEROS.length)];
+  const form   = document.getElementById("form");
+  const status = document.getElementById("status");
+  const modal  = document.getElementById("modal");
+  let waLink = "";
+
+  function bad(id, is) { document.getElementById(id).classList.toggle("bad", is); }
+  function fecharModal() { modal.classList.remove("open"); }
+
+  document.getElementById("go-wa").addEventListener("click", function () {
+    if (waLink) window.open(waLink, "_blank");
+    fecharModal();
+  });
+  document.getElementById("close-modal").addEventListener("click", fecharModal);
+  modal.addEventListener("click", function (e) { if (e.target === modal) fecharModal(); });
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    status.className = "status"; status.textContent = "";
+
+    const nome     = form.nome.value.trim();
+    const email    = form.email.value.trim();
+    const telefone = form.telefone.value.trim();
+    const mensagem = form.mensagem.value.trim();
+
+    let ok = true;
+    bad("c-nome", !nome);                                    if (!nome) ok = false;
+    // E-mail agora e opcional: so reprova se preencheram em formato invalido.
+    const emailOk = !email || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    bad("c-email", !emailOk);                                if (!emailOk) ok = false;
+    bad("c-telefone", !telefone);                            if (!telefone) ok = false;
+    bad("c-mensagem", !mensagem);                            if (!mensagem) ok = false;
+    if (!ok) return;
+
+    const texto =
+      "*Nova mensagem — HidroMonitor*\n\n" +
+      "Nome: " + nome + "\n" +
+      (email ? "E-mail: " + email + "\n" : "") +
+      "Telefone: " + telefone + "\n" +
+      "Mensagem: " + mensagem;
+
+    // aviso por e-mail (funciona com o site hospedado online)
+    if (EMAIL_AVISO && EMAIL_AVISO.indexOf("@") > 0) {
+      const d = new FormData();
+      d.append("_subject", "Nova mensagem no site do HidroMonitor");
+      d.append("Aviso", "Uma pessoa enviou uma nova mensagem pelo site. Dados abaixo:");
+      d.append("Nome", nome);
+      d.append("E-mail", email);
+      d.append("Telefone", telefone);
+      d.append("Mensagem", mensagem);
+      d.append("Atendente sorteado (WhatsApp)", WHATSAPP);
+      d.append("_template", "table");
+      d.append("_captcha", "false");
+      fetch("https://formsubmit.co/ajax/" + encodeURIComponent(EMAIL_AVISO), {
+        method: "POST", body: d, headers: { "Accept": "application/json" }
+      }).catch(function () {});
+    }
+
+    // Etapa C do funil: guarda a sugestao e marca a visita como "enviou".
+    // Protegido: se o rastreio nao carregou, o envio segue exatamente como antes.
+    if (window.__funil) window.__funil.registrarEnvio({ nome, email, telefone, mensagem });
+
+    // guarda o link do WhatsApp e mostra a janela de confirmação
+    waLink = "https://wa.me/" + WHATSAPP + "?text=" + encodeURIComponent(texto);
+    status.className = "status"; status.textContent = "";
+    form.reset();
+    modal.classList.add("open");
+  });
+</script>
+<script>
+  /* =====================================================================
+     FUNIL DE ACESSO — mede quantas pessoas abrem a pagina, quantas comecam
+     a preencher e quantas enviam.
+
+     Todo este bloco e isolado e a prova de falha: qualquer erro aqui dentro
+     e engolido e o formulario acima continua funcionando normalmente. Nada
+     aqui bloqueia a renderizacao nem o envio da sugestao.
+
+     A pagina nao fala com o banco: manda para /api/funil e /api/sugestao,
+     que gravam no servidor. Nenhuma chave do Supabase existe nesta pagina.
+     ===================================================================== */
+  (function () {
+    "use strict";
+
+    var API_VISITA   = "/api/funil";
+    var API_SUGESTAO = "/api/sugestao";
+    var CHAVE_SESSAO      = "hm_funil_sessao";      // sessionStorage: uma aba
+    var CHAVE_DISPOSITIVO = "hm_funil_dispositivo"; // localStorage: pessoa unica
+
+    function novoId() {
+      try {
+        if (window.crypto && window.crypto.randomUUID) return window.crypto.randomUUID();
+      } catch (e) {}
+      return "id-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10);
+    }
+
+    /* Le o identificador ja gravado ou cria um. Em aba anonima com
+       armazenamento bloqueado, devolve um id solto e segue em frente. */
+    function identificador(armazem, chave) {
+      try {
+        var atual = armazem.getItem(chave);
+        if (atual) return atual;
+        var novo = novoId();
+        armazem.setItem(chave, novo);
+        return novo;
+      } catch (e) {
+        return novoId();
+      }
+    }
+
+    var idSessao = identificador(window.sessionStorage, CHAVE_SESSAO);
+    var idDispositivo = identificador(window.localStorage, CHAVE_DISPOSITIVO);
+
+    /* ---------- classificacao feita aqui, para o banco guardar valor limpo ---------- */
+
+    function tipoDeAparelho(ua) {
+      if (/iPad|Tablet|PlayBook|Silk/i.test(ua)) return "tablet";
+      if (/Android/i.test(ua) && !/Mobile/i.test(ua)) return "tablet";
+      /* iPad recente se anuncia como Mac; o toque e o que o entrega */
+      if (/Macintosh/i.test(ua) && navigator.maxTouchPoints > 1) return "tablet";
+      if (/Mobi|iPhone|iPod|Android|Windows Phone/i.test(ua)) return "celular";
+      return "computador";
+    }
+
+    function sistema(ua) {
+      if (/Windows/i.test(ua)) return "Windows";
+      if (/Android/i.test(ua)) return "Android";
+      if (/iPhone|iPad|iPod/i.test(ua)) return "iOS";
+      if (/Macintosh|Mac OS X/i.test(ua)) return navigator.maxTouchPoints > 1 ? "iOS" : "macOS";
+      if (/Linux/i.test(ua)) return "Linux";
+      return "outro";
+    }
+
+    /* A ordem importa: quase todo navegador mente dizendo tambem ser Chrome
+       e Safari, entao os mais especificos precisam ser testados primeiro. */
+    function navegador(ua) {
+      if (/Edg\//i.test(ua)) return "Edge";
+      if (/OPR\/|Opera/i.test(ua)) return "Opera";
+      if (/SamsungBrowser/i.test(ua)) return "Samsung";
+      if (/Firefox|FxiOS/i.test(ua)) return "Firefox";
+      if (/Chrome|CriOS/i.test(ua)) return "Chrome";
+      if (/Safari/i.test(ua)) return "Safari";
+      return "outro";
+    }
+
+    function coletar() {
+      var ua = navigator.userAgent || "";
+      var busca = {};
+      try {
+        var p = new URLSearchParams(window.location.search);
+        busca.src = p.get("src");
+        busca.utm = p.get("utm_campaign");
+      } catch (e) {}
+      var conexao = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+      var fuso = null;
+      try { fuso = Intl.DateTimeFormat().resolvedOptions().timeZone; } catch (e) {}
+
+      return {
+        id_sessao: idSessao,
+        id_dispositivo: idDispositivo,
+
+        origem: busca.src || null,
+        utm_campaign: busca.utm || null,
+        referrer: document.referrer || null,
+
+        tipo_aparelho: tipoDeAparelho(ua),
+        sistema: sistema(ua),
+        navegador: navegador(ua),
+        user_agent: ua,
+
+        tela_largura: window.screen ? window.screen.width : null,
+        tela_altura: window.screen ? window.screen.height : null,
+        viewport_largura: window.innerWidth || null,
+        viewport_altura: window.innerHeight || null,
+        pixel_ratio: window.devicePixelRatio || null,
+
+        cpu_nucleos: navigator.hardwareConcurrency || null,
+        /* memoria e conexao so existem em navegadores Chromium; no iPhone vem nulo */
+        memoria_gb: navigator.deviceMemory || null,
+        conexao: conexao ? conexao.effectiveType || null : null,
+
+        idioma: navigator.language || null,
+        fuso: fuso
+      };
+    }
+
+    function enviar(url, corpo) {
+      try {
+        return fetch(url, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(corpo),
+          keepalive: true
+        }).catch(function () {});
+      } catch (e) {
+        return Promise.resolve();
+      }
+    }
+
+    /* As etapas B e C alteram a linha criada pela etapa A. Se dispararem antes
+       de a etapa A chegar ao banco, nao encontram nada para atualizar — por
+       isso ambas esperam a promessa do acesso terminar. */
+    var acessoRegistrado = null;
+    function aposAcesso(acao) {
+      var espera = acessoRegistrado || Promise.resolve();
+      espera.then(acao, acao);
+    }
+
+    /* ---------- etapa A: acesso ---------- */
+    function registrarAcesso() {
+      acessoRegistrado = enviar(API_VISITA, coletar());
+    }
+
+    /* ---------- etapa B: primeiro toque no formulario ---------- */
+    var jaIniciou = false;
+    function ligarInteracao() {
+      var form = document.getElementById("form");
+      if (!form) return;
+      function umaVezSo() {
+        if (jaIniciou) return;
+        jaIniciou = true;
+        form.removeEventListener("focusin", umaVezSo);
+        form.removeEventListener("input", umaVezSo);
+        aposAcesso(function () {
+          enviar(API_VISITA, { acao: "interacao", id_sessao: idSessao });
+        });
+      }
+      form.addEventListener("focusin", umaVezSo);
+      form.addEventListener("input", umaVezSo);
+    }
+
+    /* ---------- etapa C: chamada por uma linha no envio do formulario ---------- */
+    window.__funil = {
+      registrarEnvio: function (sugestao) {
+        try {
+          aposAcesso(function () {
+            enviar(API_SUGESTAO, {
+              id_sessao: idSessao,
+              nome: sugestao.nome,
+              email: sugestao.email,
+              telefone: sugestao.telefone,
+              mensagem: sugestao.mensagem
+            });
+          });
+        } catch (e) {}
+      }
+    };
+
+    /* Depois da renderizacao, para nao competir com a pintura da pagina. */
+    function comecar() {
+      try {
+        registrarAcesso();
+        ligarInteracao();
+      } catch (e) {}
+    }
+    if (document.readyState === "complete") {
+      setTimeout(comecar, 0);
+    } else {
+      window.addEventListener("load", function () { setTimeout(comecar, 0); });
+    }
+  })();
+</script>
+</body>
+</html>

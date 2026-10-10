@@ -1,0 +1,149 @@
+@import "tailwindcss" source(none);
+@source "../src";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-deep: var(--deep);
+  --color-deep-foreground: var(--deep-foreground);
+  /* Outfit: geométrica circular gratuita, escolhida por conversar com as curvas
+     fluidas/arredondadas da logo (respingo de água). Títulos. */
+  --font-display: "Outfit", "Inter", sans-serif;
+  --font-sans: "Inter", sans-serif;
+}
+
+:root {
+  --radius: 0.5rem;
+  /* Flat water-store palette */
+  --background: oklch(0.99 0.006 220);
+  --foreground: oklch(0.24 0.05 240);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.24 0.05 240);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.24 0.05 240);
+  --primary: oklch(0.6 0.15 235);
+  --primary-foreground: oklch(0.99 0.006 220);
+  --secondary: oklch(0.94 0.03 225);
+  --secondary-foreground: oklch(0.3 0.06 240);
+  --muted: oklch(0.95 0.02 225);
+  --muted-foreground: oklch(0.5 0.04 240);
+  /* Âmbar da marca (#ffbf52), extraído do reflexo especular da água no projeto
+     anterior. É o ÚNICO destaque quente — reservado para CTA/número-chave. */
+  --accent: #ffbf52;
+  --accent-foreground: #002953;
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.99 0.006 220);
+  --border: oklch(0.9 0.02 225);
+  --input: oklch(0.9 0.02 225);
+  --ring: oklch(0.6 0.15 235);
+  --deep: oklch(0.28 0.09 250);
+  --deep-foreground: oklch(0.98 0.01 220);
+}
+
+.dark {
+  --background: oklch(0.2 0.04 245);
+  --foreground: oklch(0.97 0.01 220);
+  --card: oklch(0.26 0.05 245);
+  --card-foreground: oklch(0.97 0.01 220);
+  --popover: oklch(0.26 0.05 245);
+  --popover-foreground: oklch(0.97 0.01 220);
+  --primary: oklch(0.68 0.14 220);
+  --primary-foreground: oklch(0.16 0.04 245);
+  --secondary: oklch(0.3 0.05 245);
+  --secondary-foreground: oklch(0.97 0.01 220);
+  --muted: oklch(0.3 0.05 245);
+  --muted-foreground: oklch(0.7 0.03 225);
+  --accent: #ffbf52;
+  --accent-foreground: #002953;
+  --destructive: oklch(0.704 0.191 22.216);
+  --destructive-foreground: oklch(0.97 0.01 220);
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.68 0.14 220);
+  --deep: oklch(0.16 0.04 245);
+  --deep-foreground: oklch(0.97 0.01 220);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+  /* Deep tint on the root so the iOS rubber-band overscroll (top & bottom)
+     and the safe-area render blue instead of white, matching the hero and
+     footer. The page's white surface comes from the app wrapper
+     (`.bg-background` on the page root), so body stays transparent — otherwise
+     a white body background would show through the iOS overscroll bounce. */
+  html {
+    background-color: var(--deep);
+  }
+  body {
+    background-color: transparent;
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+  }
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+}
+
+/* Indicação de rolagem do hero: um traço vertical que "respira". */
+@keyframes scroll-cue {
+  0%, 100% { transform: scaleY(0.4); transform-origin: top; opacity: 0.3; }
+  50% { transform: scaleY(1); opacity: 0.8; }
+}
+
+/* ── Hero "profundidade submersa" ──
+   Bolhas sobem do fundo em direção à superfície, com leve deriva lateral.
+   Variáveis (--rise/--drift/--bmax) são definidas inline por bolha. */
+@keyframes bubble-rise {
+  0%   { transform: translate3d(0, 0, 0) scale(0.85); opacity: 0; }
+  12%  { opacity: var(--bmax, 0.5); }
+  85%  { opacity: var(--bmax, 0.5); }
+  100% { transform: translate3d(var(--drift, 10px), calc(-1 * var(--rise, 80vh)), 0) scale(1.1); opacity: 0; }
+}
+/* Raios de luz: só a opacidade "respira" (barato e suave). */
+@keyframes ray-breathe {
+  0%, 100% { opacity: 0.18; }
+  50%      { opacity: 0.38; }
+}
+/* Brilho de sol atravessando a superfície. */
+@keyframes sun-drift {
+  0%, 100% { opacity: 0.55; transform: translateX(-50%) scale(1); }
+  50%      { opacity: 0.85; transform: translateX(-50%) scale(1.08); }
+}
+/* Faixa de superfície luminosa. */
+@keyframes surface-shimmer {
+  0%, 100% { opacity: 0.55; }
+  50%      { opacity: 0.90; }
+}
+
+/* Menos movimento: congela a cena submersa e esconde as bolhas. */
+@media (prefers-reduced-motion: reduce) {
+  [data-ambient] .anim { animation: none !important; }
+  [data-ambient] .bubbles-layer { display: none; }
+}

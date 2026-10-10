@@ -1,0 +1,12 @@
+# O projeto é formatado com Prettier (endOfLine: "lf" por padrão). Sem isto, o
+# core.autocrlf=true padrão do Git for Windows entrega CRLF no checkout e o
+# `npm run lint` falha em todo arquivo do repositório.
+* text=auto eol=lf
+
+# Binários — nunca normalizar.
+*.png binary
+*.ico binary
+*.jpg binary
+*.webp binary
+*.woff binary
+*.woff2 binary
