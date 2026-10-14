@@ -55,7 +55,7 @@ export function Comparativo() {
     <section
       id="lado-a-lado"
       aria-labelledby="comparativo-titulo"
-      className="bg-hm-bg py-[var(--space-12)] text-hm-text md:py-[var(--space-16)]"
+      className="bg-hm-bg py-[var(--space-8)] text-hm-text md:py-[var(--space-12)] lg:py-[var(--space-16)]"
     >
       <div className="mx-auto max-w-6xl px-6 md:px-10">
         <h2

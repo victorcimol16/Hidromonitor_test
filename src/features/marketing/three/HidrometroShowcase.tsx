@@ -125,11 +125,13 @@ export function HidrometroShowcase() {
       aria-labelledby="medidor-titulo"
       className="relative bg-hm-primary-900 text-white lg:h-[180svh]"
     >
-      <div className="mx-auto grid w-full max-w-6xl items-center gap-[var(--space-6)] px-6 py-[var(--space-12)] md:px-10 lg:sticky lg:top-0 lg:h-[100svh] lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:gap-[var(--space-6)] lg:py-0">
+      <div className="mx-auto grid w-full max-w-6xl items-center gap-[var(--space-6)] px-6 py-[var(--space-8)] md:px-10 md:py-[var(--space-12)] lg:sticky lg:top-0 lg:h-[100svh] lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:gap-[var(--space-6)] lg:py-0">
+        {/* Celular: título → modelo → ficha (o wrapper do texto vira `contents`
+            para o título e a ficha entrarem na grade um de cada lado do modelo). */}
         <figure className="order-2 lg:order-none">
           <div
             ref={stageRef}
-            className="relative mx-auto aspect-square w-full max-w-[min(620px,74svh)]"
+            className="relative mx-auto aspect-square w-full max-w-[min(620px,74svh)] max-sm:max-w-[340px]"
           >
             {/* Estúdio (CSS, vale para poster e 3D): luz suave atrás e sombra
                 de contato no chão, para o modelo não "flutuar" no azul. */}
@@ -181,14 +183,14 @@ export function HidrometroShowcase() {
           </figcaption>
         </figure>
 
-        <div>
+        <div className="max-lg:contents">
           <h2
             id="medidor-titulo"
-            className="max-w-[18ch] font-display text-[clamp(2rem,1.25rem+2.4vw,3.25rem)] lg:[@media(max-height:720px)]:text-[2.5rem] font-bold leading-[1.08] tracking-[-0.02em]"
+            className="max-w-[18ch] max-lg:order-1 font-display text-[clamp(2rem,1.25rem+2.4vw,3.25rem)] lg:[@media(max-height:720px)]:text-[2.5rem] font-bold leading-[1.08] tracking-[-0.02em]"
           >
             Um hidrômetro por apartamento.
           </h2>
-          <dl className="mt-[var(--space-6)] max-w-[48ch] border-t border-white/15 lg:[@media(max-height:720px)]:mt-[var(--space-4)]">
+          <dl className="max-w-[48ch] border-t max-lg:order-3 lg:mt-[var(--space-6)] border-white/15 lg:[@media(max-height:720px)]:mt-[var(--space-4)]">
             {ESPECIFICACOES.map((e) => (
               <div
                 key={e.termo}

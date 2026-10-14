@@ -36,19 +36,19 @@ export function Hero() {
       ref={sectionRef}
       id="inicio"
       aria-labelledby="hero-titulo"
-      className="flex min-h-[calc(100svh-57px)] flex-col bg-hm-bg text-hm-text"
+      className="flex flex-col lg:min-h-[calc(100svh-57px)] bg-hm-bg text-hm-text"
     >
-      <div className="mx-auto grid w-full max-w-6xl flex-1 items-center gap-[var(--space-6)] px-6 pb-[var(--space-6)] pt-[var(--space-6)] md:px-10 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-[var(--space-8)]">
+      <div className="mx-auto grid w-full max-w-6xl flex-1 items-center gap-[var(--space-6)] px-6 pb-[var(--space-6)] pt-[var(--space-4)] md:px-10 md:pt-[var(--space-6)] lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-[var(--space-8)]">
         <div>
           <h1
             id="hero-titulo"
-            className="font-display text-[clamp(2.75rem,1rem+5.6vw,6.25rem)] leading-[0.98] tracking-[-0.035em] text-hm-primary-900"
+            className="font-display text-[clamp(2rem,9.6vw,2.75rem)] sm:text-[clamp(2.75rem,1rem+5.6vw,6.25rem)] leading-[0.98] tracking-[-0.035em] text-hm-primary-900"
           >
-            <span className="block font-light">Cada unidade paga</span>
-            <span className="block font-bold">pela água que usa.</span>
+            <span className="block text-balance font-light">Cada unidade paga</span>
+            <span className="block text-balance font-bold">pela água que usa.</span>
           </h1>
 
-          <p className="mt-[var(--space-4)] max-w-[40ch] text-[length:var(--text-lead)] leading-[1.5] text-hm-text-muted">
+          <p className="mt-[var(--space-3)] max-w-[40ch] md:mt-[var(--space-4)] text-[length:var(--text-lead)] leading-[1.5] text-hm-text-muted">
             Medição individual de água para condomínios, com os hidrômetros do prédio ou medidores
             novos.
           </p>
@@ -56,7 +56,7 @@ export function Hero() {
           <a
             href="#contato"
             onClick={irParaContato}
-            className="mt-[var(--space-6)] inline-flex min-h-12 items-center gap-[var(--space-2)] rounded-sm bg-hm-primary-900 px-[var(--space-3)] font-semibold text-white transition-colors hover:bg-hm-primary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-hm-primary"
+            className="mt-[var(--space-4)] inline-flex min-h-12 md:mt-[var(--space-6)] items-center gap-[var(--space-2)] rounded-sm bg-hm-primary-900 px-[var(--space-3)] font-semibold text-white transition-colors hover:bg-hm-primary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-hm-primary"
           >
             Avaliar meu condomínio
             <span aria-hidden="true">→</span>

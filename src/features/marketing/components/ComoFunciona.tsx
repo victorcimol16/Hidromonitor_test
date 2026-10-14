@@ -73,7 +73,7 @@ export function ComoFunciona() {
     <section
       id="como-funciona"
       aria-labelledby="como-funciona-titulo"
-      className="bg-hm-primary-100/60 py-[var(--space-12)] text-hm-text md:py-[var(--space-16)]"
+      className="bg-hm-primary-100/60 py-[var(--space-8)] text-hm-text md:py-[var(--space-12)] lg:py-[var(--space-16)]"
     >
       <div className="mx-auto grid max-w-6xl gap-[var(--space-8)] px-6 md:px-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-[var(--space-12)]">
         <div className="lg:sticky lg:top-[var(--space-16)] lg:self-start">

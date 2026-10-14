@@ -66,7 +66,9 @@ export function Problema() {
           gsap.set(".js-label", { opacity: 0, y: 8 });
           gsap.set(".js-line", { scaleX: 0, transformOrigin: "left center" });
           gsap.set(".js-line-label", { opacity: 0 });
-          gsap.set(".js-callout", { opacity: 0, y: 16 });
+          // No celular as frases ficam ACIMA do gráfico, que dispara a montagem:
+          // escondê-las deixaria um vão em branco sob o título. Só animam no palco fixo.
+          if (desktop) gsap.set(".js-callout", { opacity: 0, y: 16 });
 
           const tl = gsap.timeline({
             defaults: { ease: "none" },
@@ -79,8 +81,10 @@ export function Problema() {
             .to(".js-bar", { scaleY: 1, stagger: 0.07, duration: 0.5 }, 0.2)
             .to(".js-label", { opacity: 1, y: 0, stagger: 0.05, duration: 0.3 }, 0.24)
             .to(".js-line", { scaleX: 1, duration: 0.4 }, 0.55)
-            .to(".js-line-label", { opacity: 1, duration: 0.15 }, 0.8)
-            .to(".js-callout", { opacity: 1, y: 0, stagger: 0.14, duration: 0.3 }, 0.72);
+            .to(".js-line-label", { opacity: 1, duration: 0.15 }, 0.8);
+          if (desktop) {
+            tl.to(".js-callout", { opacity: 1, y: 0, stagger: 0.14, duration: 0.3 }, 0.72);
+          }
         },
       );
 
@@ -100,7 +104,7 @@ export function Problema() {
       aria-labelledby="problema-titulo"
       className="relative bg-hm-bg text-hm-text lg:h-[220svh]"
     >
-      <div className="mx-auto grid w-full max-w-6xl items-center gap-[var(--space-8)] px-6 py-[var(--space-12)] md:px-10 lg:sticky lg:top-0 lg:h-[100svh] lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-[var(--space-12)] lg:pb-[var(--space-4)] lg:pt-[calc(var(--space-8)+var(--space-3))]">
+      <div className="mx-auto grid w-full max-w-6xl items-center gap-[var(--space-6)] px-6 py-[var(--space-8)] md:px-10 md:py-[var(--space-12)] lg:sticky lg:top-0 lg:h-[100svh] lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] md:gap-[var(--space-8)] lg:gap-[var(--space-12)] lg:pb-[var(--space-4)] lg:pt-[calc(var(--space-8)+var(--space-3))]">
         <div>
           <h2
             id="problema-titulo"
@@ -155,10 +159,12 @@ export function Problema() {
               style={{ bottom: `${LINHA_PCT}%` }}
             />
             <span
-              className="js-line-label pointer-events-none absolute right-0 mb-1.5 whitespace-nowrap rounded-full bg-hm-accent px-3 py-1 text-[11px] font-semibold text-hm-accent-ink sm:text-xs"
+              className="js-line-label pointer-events-none absolute left-0 mb-1.5 sm:left-auto sm:right-0 whitespace-nowrap rounded-full bg-hm-accent px-2 py-1 text-[11px] font-semibold text-hm-accent-ink sm:px-3 sm:text-xs"
               style={{ bottom: `${LINHA_PCT}%` }}
             >
-              todos pagam {RATEIO_IGUAL} m³
+              {/* Celular: a etiqueta cabe nas duas primeiras colunas (barras baixas). */}
+              todos<span className="max-sm:hidden"> pagam</span>
+              <span className="sm:hidden">:</span> {RATEIO_IGUAL} m³
             </span>
           </div>
 

@@ -37,7 +37,7 @@ export function Contato() {
     <section
       id="contato"
       aria-labelledby="contato-titulo"
-      className="border-t border-hm-text/15 bg-hm-bg py-[var(--space-12)] text-hm-text md:py-[var(--space-16)]"
+      className="border-t border-hm-text/15 bg-hm-bg py-[var(--space-8)] text-hm-text md:py-[var(--space-12)] lg:py-[var(--space-16)]"
     >
       <div className="mx-auto max-w-6xl px-6 md:px-10">
         <h2
@@ -55,17 +55,17 @@ export function Contato() {
                 href={href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group grid min-h-[72px] grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-[var(--space-3)] py-[var(--space-2)] transition-colors hover:text-hm-primary md:grid-cols-[12rem_minmax(0,1fr)_auto]"
+                className="group grid min-h-[72px] grid-cols-[minmax(0,1fr)_auto] items-center gap-x-[var(--space-3)] gap-y-1 py-[var(--space-3)] md:py-[var(--space-2)] transition-colors hover:text-hm-primary md:grid-cols-[12rem_minmax(0,1fr)_auto]"
               >
-                <span className="flex items-center gap-[var(--space-1)] text-sm text-hm-text-muted">
+                <span className="flex items-center gap-[var(--space-1)] text-sm text-hm-text-muted max-md:col-start-1">
                   <Icone />
                   {nome}
                 </span>
-                <span className="truncate font-display text-[clamp(1.25rem,0.9rem+1.6vw,2rem)] font-semibold tracking-[-0.01em]">
+                <span className="font-display max-md:col-start-1 md:truncate text-[clamp(1.25rem,0.9rem+1.6vw,2rem)] font-semibold tracking-[-0.01em]">
                   {valor}
                 </span>
                 <span
-                  className="text-xl transition-transform group-hover:translate-x-1 motion-reduce:transition-none"
+                  className="text-xl transition-transform max-md:col-start-2 max-md:row-span-2 max-md:row-start-1 group-hover:translate-x-1 motion-reduce:transition-none"
                   aria-hidden="true"
                 >
                   →
