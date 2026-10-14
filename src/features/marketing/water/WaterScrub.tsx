@@ -1,51 +1,36 @@
 import { useEffect, useRef, type RefObject } from "react";
 
 import { loadGsap } from "../lib/gsap";
-import { prefersReducedMotion } from "../lib/media";
 
 /**
  * Água real controlada pelo scroll (filmagem, nunca shader).
  *
  * O vídeo avança e recua conforme a rolagem da seção-gatilho. Nunca escrevemos
  * `video.currentTime` direto a cada evento de scroll: o ScrollTrigger só atualiza
- * um ALVO, e um loop no ticker do GSAP interpola o tempo atual até esse alvo —
- * é isso que dá a sensação de a água se mover junto com o dedo, suave nos dois
- * sentidos.
+ * um ALVO, e um loop no ticker do GSAP interpola o tempo atual até esse alvo.
  *
- * Sobre o vídeo fica um gradiente do azul profundo da marca, que unifica a cor
- * da filmagem com a identidade e garante contraste para os textos por cima.
+ * Mídia: /video/agua-960.mp4 (960 px, 20 fps, todos os quadros-chave `-g 1`
+ * para o scrub não travar). A água ocupa um quadro de no máximo ~600 px de
+ * largura, então 960 px basta também em telas de alta densidade.
  *
- * Fallback: enquanto o arquivo não existe/carrega, aparece o poster (primeiro
- * frame) sobre o azul profundo — então a seção nunca fica "vazia". Em
- * `prefers-reduced-motion`, o vídeo não faz scrub: fica no poster estático.
+ * O poster é um <img> de verdade por trás do vídeo. O vídeo só recebe `src` no
+ * cliente, quando há movimento permitido: em `prefers-reduced-motion`, ou se o
+ * vídeo falhar, o poster fica sozinho e a seção continua completa.
+ *
+ * Preenche o elemento pai (absolute inset-0); o pai define tamanho e recorte.
  */
+
+const VIDEO = "/video/agua-960.mp4";
+const POSTER = "/video/agua-poster-960.webp";
 
 type WaterScrubProps = {
   /** Seção cujo progresso de scroll controla o tempo do vídeo. */
   triggerRef: RefObject<HTMLElement | null>;
-  src?: string;
-  poster?: string;
-  /** ScrollTrigger start/end (padrão: cobre a entrada e saída da seção). */
-  start?: string;
-  end?: string;
   /** Intensidade da interpolação (0–1). Menor = mais inércia/suavidade. */
   lerp?: number;
-  /** Renderiza o gradiente da marca por cima do vídeo (padrão). Passe `false`
-   *  quando a seção fornecer o próprio tratamento de cor/contraste. */
-  overlay?: boolean;
-  className?: string;
 };
 
-export function WaterScrub({
-  triggerRef,
-  src = "/video/agua.mp4",
-  poster = "/video/agua-poster.jpg",
-  start = "top top",
-  end = "bottom top",
-  lerp = 0.1,
-  overlay = true,
-  className = "",
-}: WaterScrubProps) {
+export function WaterScrub({ triggerRef, lerp = 0.1 }: WaterScrubProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -53,93 +38,93 @@ export function WaterScrub({
     const trigger = triggerRef.current;
     if (!video || !trigger) return;
 
-    // Menos movimento: sem scrub. O poster/primeiro frame estático basta.
-    if (prefersReducedMotion()) return;
-
     let cancelado = false;
-    let cleanup: (() => void) | null = null;
+    let desfazer: (() => void) | null = null;
 
     loadGsap().then(({ gsap, ScrollTrigger }) => {
       if (cancelado) return;
 
-      let target = 0; // tempo-alvo (s), vindo do progresso do scroll
-      let current = 0; // tempo interpolado efetivamente aplicado
-      let hidden = document.hidden;
+      const mm = gsap.matchMedia();
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        if (!video.src.endsWith(VIDEO)) {
+          video.src = VIDEO;
+          video.load();
+        }
 
-      const st = ScrollTrigger.create({
-        trigger,
-        start,
-        end,
-        onUpdate: (self) => {
-          const dur = video.duration || 0;
-          if (dur) target = self.progress * dur;
-        },
+        let target = 0; // tempo-alvo (s), vindo do progresso do scroll
+        let current = 0; // tempo interpolado efetivamente aplicado
+        let oculta = document.hidden;
+
+        // Do topo da página até o hero sair da tela.
+        const st = ScrollTrigger.create({
+          trigger,
+          start: "top top",
+          end: "bottom top",
+          onUpdate: (self) => {
+            const dur = video.duration || 0;
+            // Para um pouco antes do fim: o último quadro às vezes não decodifica.
+            if (dur) target = self.progress * (dur - 0.05);
+          },
+        });
+
+        const tick = () => {
+          if (oculta || video.readyState < 1) return;
+          current += (target - current) * lerp;
+          if (Math.abs(video.currentTime - current) > 0.01) video.currentTime = current;
+        };
+        gsap.ticker.add(tick);
+
+        const aoMudarVisibilidade = () => {
+          oculta = document.hidden;
+        };
+        document.addEventListener("visibilitychange", aoMudarVisibilidade);
+
+        // Vídeo pronto para mostrar quadros: revela por cima do poster.
+        const aoCarregar = () => {
+          video.dataset.pronto = "true";
+          st.refresh();
+        };
+        video.addEventListener("loadeddata", aoCarregar);
+
+        return () => {
+          gsap.ticker.remove(tick);
+          document.removeEventListener("visibilitychange", aoMudarVisibilidade);
+          video.removeEventListener("loadeddata", aoCarregar);
+          st.kill();
+        };
       });
 
-      // Loop de interpolação: aproxima `current` de `target` e aplica no vídeo.
-      // Só escreve currentTime quando a diferença é perceptível (evita trabalho
-      // à toa) e pausa quando a aba está oculta.
-      const tick = () => {
-        if (hidden) return;
-        current += (target - current) * lerp;
-        if (Math.abs(video.currentTime - current) > 0.01) {
-          video.currentTime = current;
-        }
-      };
-      gsap.ticker.add(tick);
-
-      const onVisibility = () => {
-        hidden = document.hidden;
-      };
-      document.addEventListener("visibilitychange", onVisibility);
-
-      // Garante que o ScrollTrigger recalcule quando a metadata (duração) chega.
-      const onMeta = () => ScrollTrigger.refresh();
-      video.addEventListener("loadedmetadata", onMeta);
-
-      cleanup = () => {
-        gsap.ticker.remove(tick);
-        document.removeEventListener("visibilitychange", onVisibility);
-        video.removeEventListener("loadedmetadata", onMeta);
-        st.kill();
-      };
+      desfazer = () => mm.revert();
     });
 
     return () => {
       cancelado = true;
-      cleanup?.();
+      desfazer?.();
     };
-  }, [triggerRef, start, end, lerp]);
+  }, [triggerRef, lerp]);
 
   return (
     <div
-      className={`pointer-events-none absolute inset-0 overflow-hidden ${className}`}
-      // Azul profundo por baixo: se o vídeo faltar/carregar, a área continua
-      // sendo a cor da marca, nunca branco.
-      style={{ backgroundColor: "var(--deep)" }}
+      className="pointer-events-none absolute inset-0 overflow-hidden bg-hm-primary-900"
       aria-hidden="true"
     >
+      <img
+        src={POSTER}
+        alt=""
+        width={960}
+        height={540}
+        fetchPriority="high"
+        decoding="async"
+        className="absolute inset-0 h-full w-full object-cover"
+      />
       <video
         ref={videoRef}
-        className="absolute inset-0 h-full w-full object-cover"
-        src={src}
-        poster={poster}
+        className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 data-[pronto=true]:opacity-100"
         muted
         playsInline
         preload="auto"
         // sem autoplay e sem controls de propósito: o scroll conduz o tempo.
       />
-      {/* Gradiente da marca: escurece topo (nav) e base (texto), deixa o meio
-          respirar. Unifica a cor da filmagem com o azul profundo. */}
-      {overlay && (
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(to bottom, color-mix(in oklch, var(--deep), transparent 15%) 0%, color-mix(in oklch, var(--deep), transparent 55%) 38%, color-mix(in oklch, var(--deep), transparent 45%) 60%, var(--deep) 100%)",
-          }}
-        />
-      )}
     </div>
   );
 }

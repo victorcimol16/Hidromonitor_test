@@ -1,97 +1,121 @@
 import { useEffect, useRef } from "react";
 
 import { loadGsap } from "../lib/gsap";
-import { prefersReducedMotion } from "../lib/media";
 
 /**
- * Capítulo 4 — Como funciona (3 passos).
+ * Capítulo 5 — Como funciona.
  *
- * Uma ideia: da primeira conversa ao consumo na tela são três passos simples.
- * Um único efeito: os passos sobem e aparecem em sequência ao entrar na seção.
+ * Uma ideia: do hidrômetro à tela, em quatro passos. Processo vira sequência
+ * numerada. Um único efeito: a linha que liga os passos se preenche conforme o
+ * scroll (scrub). O título fica fixo ao lado no desktop (sticky de CSS, sem
+ * pin). Estado padrão (CSS) = linha cheia: sem JS ou em reduced-motion a seção
+ * está completa.
  */
 
 const PASSOS = [
   {
-    titulo: "Verificamos o seu condomínio",
+    titulo: "Avaliamos os hidrômetros do prédio",
     descricao:
-      "Você nos diz onde fica e conferimos se os hidrômetros já estão prontos para conectar. Resposta rápida e sem compromisso.",
+      "Você nos diz onde fica o condomínio e verificamos se os hidrômetros já instalados são compatíveis. Sem compromisso.",
   },
   {
-    titulo: "Conectamos o sistema",
+    titulo: "Conectamos ou instalamos",
     descricao:
-      "A integração é feita em pouco tempo, sem quebra-quebra e sem interromper o abastecimento. Os dados seguem direto para a plataforma.",
+      "Os compatíveis são conectados. Os que não forem dão lugar a medidores multijato certificados pelo Inmetro, com saída de pulso.",
   },
   {
-    titulo: "Você acompanha pela plataforma",
+    titulo: "A leitura chega sozinha",
     descricao:
-      "Consumo por bloco e por unidade, alertas quando algo foge do padrão e histórico completo — no computador ou no celular.",
+      "Cada pulso do medidor vira consumo na plataforma, por unidade e por bloco. Sem visita porta a porta e sem planilha.",
+  },
+  {
+    titulo: "Você acompanha e divide com justiça",
+    descricao:
+      "Consumo de cada apartamento, alertas quando algo foge do padrão e histórico completo, no computador ou no celular.",
   },
 ];
 
 export function ComoFunciona() {
-  const sectionRef = useRef<HTMLElement>(null);
+  const listaRef = useRef<HTMLOListElement>(null);
 
   useEffect(() => {
-    const section = sectionRef.current;
-    if (!section) return;
-    if (prefersReducedMotion()) return;
+    const lista = listaRef.current;
+    if (!lista) return;
 
-    let ctx: { revert: () => void } | null = null;
     let cancelado = false;
+    let desfazer: (() => void) | null = null;
 
     loadGsap().then(({ gsap }) => {
       if (cancelado) return;
-      ctx = gsap.context(() => {
-        gsap.set(".js-passo", { opacity: 0, y: 32 });
-        gsap.to(".js-passo", {
-          opacity: 1,
-          y: 0,
-          duration: 0.7,
-          ease: "power2.out",
-          stagger: 0.14,
-          scrollTrigger: { trigger: section, start: "top 70%", once: true },
-        });
-      }, section);
+      const mm = gsap.matchMedia(lista);
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        gsap.fromTo(
+          ".js-linha",
+          { scaleY: 0 },
+          {
+            scaleY: 1,
+            ease: "none",
+            transformOrigin: "top center",
+            scrollTrigger: { trigger: lista, start: "top 65%", end: "bottom 65%", scrub: 1 },
+          },
+        );
+      });
+      desfazer = () => mm.revert();
     });
 
     return () => {
       cancelado = true;
-      ctx?.revert();
+      desfazer?.();
     };
   }, []);
 
   return (
     <section
-      ref={sectionRef}
       id="como-funciona"
-      className="relative bg-background py-24 md:py-32"
+      aria-labelledby="como-funciona-titulo"
+      className="bg-hm-primary-100/60 py-[var(--space-12)] text-hm-text md:py-[var(--space-16)]"
     >
-      <div className="mx-auto max-w-6xl px-6">
-        <div className="mx-auto max-w-2xl text-center">
-          <p className="mb-5 text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-            Como funciona
-          </p>
-          <h2 className="text-[clamp(1.9rem,3.6vw,3rem)] font-bold leading-[1.1] tracking-[-0.02em] text-foreground">
-            Simples assim: plugou, já tem os dados.
+      <div className="mx-auto grid max-w-6xl gap-[var(--space-8)] px-6 md:px-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-[var(--space-12)]">
+        <div className="lg:sticky lg:top-[var(--space-16)] lg:self-start">
+          <h2
+            id="como-funciona-titulo"
+            className="max-w-[16ch] font-display text-[length:var(--text-h2)] font-bold leading-[1.08] tracking-[-0.02em]"
+          >
+            Do hidrômetro à tela, em quatro passos.
           </h2>
-          <p className="mt-5 text-[clamp(1rem,1.5vw,1.2rem)] leading-relaxed text-muted-foreground">
-            Três passos entre a primeira conversa e o consumo do condomínio na
-            tela.
-          </p>
         </div>
 
-        <ol className="mt-16 grid gap-10 md:grid-cols-3 md:gap-8">
-          {PASSOS.map((passo, i) => (
-            <li key={passo.titulo} className="js-passo">
-              <span className="font-display text-[clamp(2.75rem,5vw,3.75rem)] font-bold leading-none text-primary/25">
-                {String(i + 1).padStart(2, "0")}
+        <ol ref={listaRef} className="relative">
+          {/* Trilho + preenchimento: centrados nos marcadores (40px → 19px). */}
+          <span
+            className="absolute bottom-6 left-[19px] top-6 w-0.5 bg-hm-text/10"
+            aria-hidden="true"
+          />
+          <span
+            className="js-linha absolute bottom-6 left-[19px] top-6 w-0.5 origin-top bg-hm-primary"
+            aria-hidden="true"
+          />
+
+          {PASSOS.map((p, i) => (
+            <li
+              key={p.titulo}
+              className="relative grid grid-cols-[40px_minmax(0,1fr)] gap-x-[var(--space-3)] pb-[var(--space-6)] last:pb-0"
+            >
+              <span
+                className="relative flex h-10 w-10 items-center justify-center rounded-full border-2 border-hm-primary bg-white font-display text-sm font-bold text-hm-primary"
+                aria-hidden="true"
+              >
+                {i + 1}
               </span>
-              <h3 className="mt-4 font-display text-xl font-semibold text-foreground">
-                {passo.titulo}
-              </h3>
-              <p className="mt-2 max-w-[42ch] text-[0.95rem] leading-relaxed text-muted-foreground">
-                {passo.descricao}
-              </p>
+              <div className="pt-1.5">
+                <h3 className="font-display text-xl font-semibold leading-snug">
+                  <span className="sr-only">Passo {i + 1}: </span>
+                  {p.titulo}
+                </h3>
+                <p className="mt-[var(--space-1)] max-w-[48ch] leading-[var(--leading-body)] text-hm-text-muted">
+                  {p.descricao}
+                </p>
+              </div>
             </li>
           ))}
         </ol>

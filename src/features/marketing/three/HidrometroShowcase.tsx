@@ -1,227 +1,206 @@
-import { Suspense, lazy, useEffect, useRef, useState } from "react";
+import { Suspense, lazy, useCallback, useEffect, useRef, useState } from "react";
 
 import { loadGsap } from "../lib/gsap";
 import { hasFastWebGL, isMobileViewport, prefersReducedMotion } from "../lib/media";
 import { setShowcaseProgress } from "./showcaseStore";
-import type { BodyVariant } from "./hidrometroMaterials";
 
 const ShowcaseCanvas = lazy(() => import("./ShowcaseCanvas"));
 
-const POSTER = "/models/hidrometro-poster.jpg";
-
-// Legendas que apontam as partes durante o beat "produto" (progresso 0→1).
-const CAPTIONS = [
+// Ficha do medidor: substitui o parágrafo de apoio. A primeira linha cobre o
+// hidrômetro que já existe; as demais, o medidor que a HidroMonitor instala
+// quando o existente não é compatível (dados da marca).
+const ESPECIFICACOES = [
   {
-    eyebrow: "01",
-    title: "A água entra",
-    desc: "Toda a água da unidade passa pelo medidor — pelas conexões de entrada e saída.",
-    at: [0.3, 0.46],
-    side: "left",
+    termo: "Hidrômetro atual",
+    descricao: "Se for compatível, continua no lugar e passa a ser lido pela plataforma.",
   },
   {
-    eyebrow: "02",
-    title: "A água vira número",
-    desc: "Cada litro que passa é registrado no mostrador, sob a lente de vidro.",
-    at: [0.42, 0.58],
-    side: "right",
+    termo: "Medidor novo",
+    descricao: "Multijato, certificado pelo Inmetro. Instalado quando o atual não é compatível.",
   },
   {
-    eyebrow: "03",
-    title: "Cada m³ é contado",
-    desc: "O totalizador soma, gota a gota, o consumo real daquela unidade.",
-    at: [0.54, 0.68],
-    side: "left",
+    termo: "Saída de pulso",
+    descricao:
+      "Um sinal elétrico a cada volume medido. É por ela que a leitura chega à plataforma.",
   },
-] as const;
+  {
+    termo: "Lei 13.312/2016",
+    descricao: "Torna obrigatória a medição individualizada em condomínios novos.",
+  },
+];
 
 /**
- * Vitrine 3D do hidrômetro (Etapa 4) — protagonista em estilo AirPods.
+ * Capítulo 3 — O medidor.
  *
- * Seção alta com um palco fixo (sticky). O GSAP ScrollTrigger (scrub) escreve o
- * progresso no store; a cena 3D (lazy) interpola rotação, câmera e explosão.
- * Fallbacks: poster estático enquanto o 3D carrega; em reduced-motion mostra só
- * o poster. Mobile reduz sombras/resolução.
+ * Uma ideia: cada apartamento tem o próprio hidrômetro, e a leitura sai dele
+ * sozinha. Um único efeito: o modelo 3D (convertido do STEP real) gira devagar
+ * com o scroll. Desktop (≥ 1024px): seção de 180svh com palco fixo. Abaixo
+ * disso: sem palco fixo; o modelo gira enquanto atravessa a tela.
+ *
+ * Carregamento: o poster estático (mesma pose e luz do 3D) aparece primeiro. O
+ * three.js + modelo (~1 MB) só baixam quando a seção chega perto da tela, e o
+ * canvas entra por cima em fade quando o modelo está pronto. Em reduced-motion
+ * ou sem GPU de verdade, fica só o poster. Fora da tela, o render para.
  */
-export function HidrometroShowcase({ variant = "brass" }: { variant?: BodyVariant }) {
+export function HidrometroShowcase() {
   const sectionRef = useRef<HTMLElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
-  const heroRef = useRef<HTMLDivElement>(null);
-  const closeRef = useRef<HTMLDivElement>(null);
-  const capRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  // Tamanho medido do palco em px (evita o canvas R3F nascer 300×150).
-  const [size, setSize] = useState<{ w: number; h: number } | null>(null);
-  const [reduced, setReduced] = useState(false);
+  // `false` até o cliente decidir; no SSR e sem JS fica só o poster.
+  const [usar3D, setUsar3D] = useState(false);
   const [mobile, setMobile] = useState(false);
+  const [perto, setPerto] = useState(false); // já chegou perto (baixa o 3D)
+  const [visivel, setVisivel] = useState(false); // está na tela (renderiza)
+  const [pronto, setPronto] = useState(false);
 
   useEffect(() => {
-    // Em reduced-motion OU WebGL por software (sem GPU), usamos só o poster —
-    // a cena animada ficaria a poucos fps.
-    setReduced(prefersReducedMotion() || !hasFastWebGL());
+    setUsar3D(!prefersReducedMotion() && hasFastWebGL());
     setMobile(isMobileViewport());
-    const el = stageRef.current;
-    if (!el) return;
-    const measure = () => {
-      const r = el.getBoundingClientRect();
-      if (r.width > 0 && r.height > 0) setSize({ w: r.width, h: r.height });
-    };
-    measure();
-    const ro = new ResizeObserver(measure);
-    ro.observe(el);
-    return () => ro.disconnect();
   }, []);
 
   useEffect(() => {
-    const section = sectionRef.current;
-    if (!section || reduced) return;
+    const stage = stageRef.current;
+    if (!stage || !usar3D) return;
+    const ioPerto = new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting) {
+          setPerto(true);
+          ioPerto.disconnect();
+        }
+      },
+      { rootMargin: "100% 0px" },
+    );
+    const ioVisivel = new IntersectionObserver(([e]) => setVisivel(e.isIntersecting));
+    ioPerto.observe(stage);
+    ioVisivel.observe(stage);
+    return () => {
+      ioPerto.disconnect();
+      ioVisivel.disconnect();
+    };
+  }, [usar3D]);
 
-    let ctx: { revert: () => void } | null = null;
+  useEffect(() => {
+    const section = sectionRef.current;
+    const stage = stageRef.current;
+    if (!section || !stage || !usar3D) return;
+
     let cancelado = false;
+    let desfazer: (() => void) | null = null;
 
     loadGsap().then(({ gsap, ScrollTrigger }) => {
       if (cancelado) return;
-      ctx = gsap.context(() => {
-        ScrollTrigger.create({
-          trigger: section,
-          start: "top top",
-          end: "bottom bottom",
-          scrub: true,
-          onUpdate: (self) => {
-            const p = self.progress;
-            setShowcaseProgress(p);
-
-            // Overlays por beat (opacidade via refs, sem re-render).
-            if (heroRef.current) {
-              heroRef.current.style.opacity = String(1 - smooth(0.02, 0.16, p));
-            }
-            if (closeRef.current) {
-              closeRef.current.style.opacity = String(smooth(0.82, 0.92, p));
-            }
-            CAPTIONS.forEach((c, i) => {
-              const node = capRefs.current[i];
-              if (!node) return;
-              const o =
-                smooth(c.at[0], c.at[0] + 0.04, p) * (1 - smooth(c.at[1] - 0.04, c.at[1], p));
-              node.style.opacity = String(o);
-              node.style.transform = `translateY(${(1 - o) * 10}px)`;
-            });
-          },
-        });
-      }, section);
+      const mm = gsap.matchMedia();
+      mm.add(
+        {
+          desktop: "(min-width: 1024px) and (prefers-reduced-motion: no-preference)",
+          mobile: "(max-width: 1023px) and (prefers-reduced-motion: no-preference)",
+        },
+        (ctx) => {
+          const { desktop } = ctx.conditions as { desktop: boolean };
+          const st = ScrollTrigger.create({
+            ...(desktop
+              ? { trigger: section, start: "top top", end: "bottom bottom" }
+              : { trigger: stage, start: "top bottom", end: "bottom top" }),
+            onUpdate: (self) => setShowcaseProgress(self.progress),
+          });
+          setShowcaseProgress(st.progress);
+          return () => st.kill();
+        },
+      );
+      desfazer = () => mm.revert();
     });
 
     return () => {
       cancelado = true;
-      ctx?.revert();
+      desfazer?.();
     };
-  }, [reduced, size]);
+  }, [usar3D]);
+
+  const aoFicarPronto = useCallback(() => setPronto(true), []);
 
   return (
     <section
       ref={sectionRef}
-      id="o-produto"
-      className="relative bg-black text-white"
-      style={{ height: reduced ? "100svh" : "420vh" }}
+      id="o-medidor"
+      aria-labelledby="medidor-titulo"
+      className="relative bg-hm-primary-900 text-white lg:h-[180svh]"
     >
-      {/* Palco fixo */}
-      <div ref={stageRef} className="sticky top-0 h-[100svh] w-full overflow-hidden">
-        {/* Poster de fundo (sempre presente; o canvas entra por cima). */}
-        <img
-          src={POSTER}
-          alt="Hidrômetro HidroMonitor"
-          className="absolute inset-0 h-full w-full object-contain opacity-80"
-        />
-
-        {!reduced && size && (
-          <Suspense fallback={null}>
-            <div className="absolute inset-0" style={{ width: size.w, height: size.h }}>
-              <ShowcaseCanvas variant={variant} mobile={mobile} />
-            </div>
-          </Suspense>
-        )}
-
-        {/* Overlay: título do hero (some ao rolar) */}
-        <div
-          ref={heroRef}
-          className="pointer-events-none absolute inset-x-0 top-[12%] z-10 text-center"
-        >
-          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.22em] text-accent">
-            A solução
-          </p>
-          <h2 className="mx-auto max-w-[18ch] font-display text-[clamp(2rem,5vw,4rem)] font-bold leading-[1.05] tracking-[-0.02em]">
-            Um medidor para cada unidade.
-          </h2>
-        </div>
-
-        {/* Legendas das partes */}
-        {CAPTIONS.map((c, i) => (
+      <div className="mx-auto grid w-full max-w-6xl items-center gap-[var(--space-6)] px-6 py-[var(--space-12)] md:px-10 lg:sticky lg:top-0 lg:h-[100svh] lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:gap-[var(--space-6)] lg:py-0">
+        <figure className="order-2 lg:order-none">
           <div
-            key={c.eyebrow}
-            ref={(n) => {
-              capRefs.current[i] = n;
-            }}
-            className={`pointer-events-none absolute z-10 bottom-[8%] left-5 right-5 text-center md:bottom-auto md:top-1/2 md:max-w-[17rem] ${
-              c.side === "left"
-                ? "md:left-[14%] md:right-auto md:text-left"
-                : "md:right-[14%] md:left-auto md:text-right"
-            }`}
-            style={{ opacity: 0 }}
+            ref={stageRef}
+            className="relative mx-auto aspect-square w-full max-w-[min(620px,74svh)]"
           >
+            {/* Estúdio (CSS, vale para poster e 3D): luz suave atrás e sombra
+                de contato no chão, para o modelo não "flutuar" no azul. */}
             <div
-              className={`flex items-center justify-center gap-2 ${
-                c.side === "left" ? "md:justify-start" : "md:justify-end"
-              }`}
-            >
-              <svg
-                viewBox="0 0 24 24"
-                className="h-4 w-4 shrink-0"
-                fill={`url(#drop-${c.eyebrow})`}
+              className="pointer-events-none absolute inset-[6%]"
+              style={{
+                background:
+                  "radial-gradient(closest-side at 46% 46%, rgb(91 155 255 / 0.2), transparent)",
+              }}
+              aria-hidden="true"
+            />
+            <div
+              className="pointer-events-none absolute bottom-[16%] left-[14%] right-[24%] h-[9%]"
+              style={{
+                background: "radial-gradient(closest-side, rgb(0 10 25 / 0.55), transparent)",
+              }}
+              aria-hidden="true"
+            />
+            <picture>
+              <source media="(max-width: 767px)" srcSet="/models/hidrometro-saga-poster-640.webp" />
+              <img
+                src="/models/hidrometro-saga-poster.webp"
+                alt="Hidrômetro residencial com a tampa aberta, mostrando o mostrador sob o visor."
+                width={1200}
+                height={1200}
+                loading="lazy"
+                decoding="async"
+                className={`absolute inset-0 h-full w-full transition-opacity duration-700 ${
+                  pronto ? "opacity-0" : "opacity-100"
+                }`}
+              />
+            </picture>
+
+            {usar3D && perto && (
+              <div
+                className={`absolute inset-0 transition-opacity duration-700 ${
+                  pronto ? "opacity-100" : "opacity-0"
+                }`}
                 aria-hidden="true"
               >
-                <defs>
-                  <linearGradient id={`drop-${c.eyebrow}`} x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#8fe0ff" />
-                    <stop offset="100%" stopColor="#1e6fff" />
-                  </linearGradient>
-                </defs>
-                <path d="M12 2.5s6 6.4 6 11a6 6 0 0 1-12 0c0-4.6 6-11 6-11z" />
-                <ellipse cx="9.6" cy="12.4" rx="1.5" ry="2.1" fill="#ffffff" opacity="0.55" />
-              </svg>
-              <span className="font-display text-sm font-bold text-accent">{c.eyebrow}</span>
-            </div>
-            <h3 className="mt-1 font-display text-lg font-semibold md:text-xl">{c.title}</h3>
-            <p className="mx-auto mt-1.5 max-w-[34ch] text-sm leading-relaxed text-white/65">
-              {c.desc}
-            </p>
+                <Suspense fallback={null}>
+                  <ShowcaseCanvas mobile={mobile} ativo={visivel} onReady={aoFicarPronto} />
+                </Suspense>
+              </div>
+            )}
           </div>
-        ))}
+          <figcaption className="mt-[var(--space-2)] text-center text-xs text-white/60">
+            Modelo 3D ilustrativo de hidrômetro residencial DN ¾″.
+          </figcaption>
+        </figure>
 
-        {/* Overlay de fechamento (após a explosão/remontagem) */}
-        <div
-          ref={closeRef}
-          className="pointer-events-none absolute inset-x-0 bottom-[12%] z-10 text-center"
-          style={{ opacity: 0 }}
-        >
-          <h2 className="mx-auto max-w-[20ch] font-display text-[clamp(1.6rem,3.6vw,2.75rem)] font-bold leading-[1.1] tracking-[-0.02em]">
-            Cada peça, no lugar certo.
+        <div>
+          <h2
+            id="medidor-titulo"
+            className="max-w-[18ch] font-display text-[clamp(2rem,1.25rem+2.4vw,3.25rem)] lg:[@media(max-height:720px)]:text-[2.5rem] font-bold leading-[1.08] tracking-[-0.02em]"
+          >
+            Um hidrômetro por apartamento.
           </h2>
+          <dl className="mt-[var(--space-6)] max-w-[48ch] border-t border-white/15 lg:[@media(max-height:720px)]:mt-[var(--space-4)]">
+            {ESPECIFICACOES.map((e) => (
+              <div
+                key={e.termo}
+                className="grid grid-cols-[10rem_minmax(0,1fr)] gap-[var(--space-2)] border-b border-white/15 py-[var(--space-2)] max-sm:grid-cols-1 max-sm:gap-1"
+              >
+                <dt className="font-semibold text-white">{e.termo}</dt>
+                <dd className="leading-snug text-white/75">{e.descricao}</dd>
+              </div>
+            ))}
+          </dl>
         </div>
-
-        {/* Em reduced-motion: legenda estática simples sobre o poster. */}
-        {reduced && (
-          <div className="absolute inset-x-0 bottom-[10%] z-10 px-6 text-center">
-            <h2 className="mx-auto max-w-[20ch] font-display text-2xl font-bold">
-              O hidrômetro que mede o consumo de cada unidade.
-            </h2>
-          </div>
-        )}
       </div>
     </section>
   );
-}
-
-// Smoothstep util (0→1 com ease).
-function smooth(a: number, b: number, x: number) {
-  const t = Math.min(1, Math.max(0, (x - a) / (b - a)));
-  return t * t * (3 - 2 * t);
 }

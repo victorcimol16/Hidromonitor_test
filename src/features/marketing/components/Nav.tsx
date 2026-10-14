@@ -1,87 +1,62 @@
-import { useEffect, useState } from "react";
+import type { MouseEvent } from "react";
 import { Link } from "@tanstack/react-router";
 
 import { LogoMark } from "@/components/brand/Logo";
-import { BRAND_COLORS, WHATSAPP_URL } from "@/lib/brand";
+import { BRAND_COLORS } from "@/lib/brand";
+import { SECOES } from "../lib/secoes";
+import { scrollToSection } from "../lib/useSmoothScroll";
 
 /**
- * Barra fixa, discreta. Adapta-se ao fundo: vidro translúcido com texto claro
- * sobre o hero escuro; ao rolar para as seções claras, vira uma barra sólida
- * clara com texto escuro (padrão de páginas premium). Assim o contraste se
- * mantém em toda a página.
+ * Barra editorial: faz parte do topo da página e rola junto com ela (não é
+ * fixa). Fundo branco sólido, fio fino embaixo, links em texto. Sem vidro, sem
+ * pílula, sem trocar de cor e sem sumir/aparecer — nenhum código de scroll.
+ *
+ * Links das seções só a partir de `md`; no celular ficam a marca e "Contato"
+ * (sem menu escondido, então não há menu móvel a manter). As seções também
+ * estão no rodapé.
  */
 export function Nav() {
-  const [solid, setSolid] = useState(false);
-  // Esconde a nav enquanto a vitrine imersiva do hidrômetro está em tela.
-  const [hidden, setHidden] = useState(false);
-
-  useEffect(() => {
-    let raf = 0;
-    const onScroll = () => {
-      if (raf) return;
-      raf = requestAnimationFrame(() => {
-        raf = 0;
-        // Vira sólida quando o hero (quase 100svh) sai de baixo da nav.
-        setSolid(window.scrollY > window.innerHeight - 90);
-      });
-    };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      if (raf) cancelAnimationFrame(raf);
-    };
-  }, []);
-
-  // Observa a seção "A solução" (#o-produto): enquanto ela estiver visível, a
-  // nav recolhe para cima; some até o usuário descer para fora da seção.
-  useEffect(() => {
-    const target = document.getElementById("o-produto");
-    if (!target) return;
-    const io = new IntersectionObserver(
-      ([entry]) => setHidden(entry.isIntersecting),
-      { threshold: 0, rootMargin: "-72px 0px 0px 0px" },
-    );
-    io.observe(target);
-    return () => io.disconnect();
-  }, []);
+  const irPara = (id: string) => (e: MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    scrollToSection(id);
+  };
 
   return (
-    <nav
-      className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ease-out ${
-        hidden ? "pointer-events-none -translate-y-[140%] opacity-0" : "translate-y-0 opacity-100"
-      }`}
-      aria-hidden={hidden}
-    >
-      <div
-        className={`mx-auto mt-3 flex w-[min(72rem,calc(100%-1.5rem))] items-center justify-between rounded-full border px-5 py-3 backdrop-blur-xl transition-colors duration-300 ${
-          solid
-            ? "border-border bg-background/90 shadow-[0_8px_30px_rgba(0,20,45,0.08)]"
-            : "border-white/15 bg-white/10"
-        }`}
-      >
+    <nav aria-label="Principal" className="border-b border-hm-text/15 bg-hm-bg">
+      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-[var(--space-3)] px-6 md:px-10">
         <Link
           to="/"
-          className="flex items-center gap-2.5 font-display text-xl font-semibold tracking-tight"
+          className="flex min-h-11 items-center gap-2 text-base font-semibold tracking-tight"
         >
-          <LogoMark size={34} />
-          <span style={{ fontFamily: "var(--font-sans)" }}>
-            <span style={{ color: solid ? BRAND_COLORS.hidroOnLight : BRAND_COLORS.hidroOnDark }}>
-              Hidro
-            </span>
-            <span style={{ color: solid ? "#008bcc" : BRAND_COLORS.monitor }}>Monitor</span>
+          <LogoMark size={26} />
+          <span>
+            <span style={{ color: BRAND_COLORS.hidroOnLight }}>Hidro</span>
+            <span style={{ color: "#008bcc" }}>Monitor</span>
           </span>
         </Link>
-        <a
-          href={WHATSAPP_URL}
-          className={`inline-flex rounded-full px-4 py-2 text-sm font-semibold transition-colors sm:px-5 ${
-            solid
-              ? "bg-[#1E4FA6] text-white hover:bg-[#1a4494]"
-              : "border border-white/25 text-deep-foreground hover:bg-white/10"
-          }`}
-        >
-          Contato
-        </a>
+
+        <div className="flex items-center gap-[var(--space-4)]">
+          <ul className="hidden items-center gap-[var(--space-3)] md:flex">
+            {SECOES.map((s) => (
+              <li key={s.id}>
+                <a
+                  href={`#${s.id}`}
+                  onClick={irPara(s.id)}
+                  className="inline-flex min-h-11 items-center text-sm text-hm-text-muted transition-colors hover:text-hm-text"
+                >
+                  {s.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+          <a
+            href="#contato"
+            onClick={irPara("contato")}
+            className="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-hm-primary-900 underline-offset-4 hover:underline"
+          >
+            Contato <span aria-hidden="true">→</span>
+          </a>
+        </div>
       </div>
     </nav>
   );

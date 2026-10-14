@@ -60,9 +60,8 @@ export function CtaFinal() {
           Descubra hoje se o seu condomínio já está pronto.
         </h2>
         <p className="js-cta mx-auto mt-5 max-w-[52ch] text-[clamp(1rem,1.6vw,1.25rem)] leading-relaxed text-deep-foreground/70">
-          A verificação é rápida e sem compromisso. Se os hidrômetros já forem
-          compatíveis, é só conectar. Se não forem, nossas parcerias resolvem a
-          troca para você.
+          A verificação é rápida e sem compromisso. Se os hidrômetros já forem compatíveis, é só
+          conectar. Se não forem, nossas parcerias resolvem a troca para você.
         </p>
         <a
           href={WHATSAPP_URL}

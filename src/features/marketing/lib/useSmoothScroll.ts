@@ -1,7 +1,11 @@
 import { useEffect } from "react";
+import type Lenis from "lenis";
 
 import { loadGsap } from "./gsap";
 import { prefersReducedMotion } from "./media";
+
+/** Instância ativa do Lenis (null no SSR, em reduced-motion ou antes de carregar). */
+let lenisAtivo: Lenis | null = null;
 
 /**
  * Rolagem suave (Lenis) na página inteira, sincronizada com o GSAP.
@@ -22,10 +26,11 @@ export function useSmoothScroll() {
     let cancelado = false;
 
     Promise.all([import("lenis"), loadGsap()]).then(
-      ([{ default: Lenis }, { gsap, ScrollTrigger }]) => {
+      ([{ default: LenisCtor }, { gsap, ScrollTrigger }]) => {
         if (cancelado) return;
 
-        const lenis = new Lenis({ lerp: 0.08, smoothWheel: true });
+        const lenis = new LenisCtor({ lerp: 0.08, smoothWheel: true });
+        lenisAtivo = lenis;
 
         // A cada scroll do Lenis, o ScrollTrigger reavalia os gatilhos.
         lenis.on("scroll", ScrollTrigger.update);
@@ -39,6 +44,7 @@ export function useSmoothScroll() {
         destruir = () => {
           gsap.ticker.remove(aoTick);
           lenis.destroy();
+          lenisAtivo = null;
         };
       },
     );
@@ -48,4 +54,27 @@ export function useSmoothScroll() {
       destruir?.();
     };
   }, []);
+}
+
+/**
+ * Leva o leitor até a seção `id` e move o foco para ela (teclado e leitor de
+ * tela continuam a partir dali). Usa o Lenis quando ativo; senão, a rolagem
+ * nativa — instantânea em reduced-motion.
+ */
+export function scrollToSection(id: string) {
+  const alvo = document.getElementById(id);
+  if (!alvo) return;
+
+  const focar = () => {
+    if (!alvo.hasAttribute("tabindex")) alvo.setAttribute("tabindex", "-1");
+    alvo.focus({ preventScroll: true });
+  };
+
+  if (lenisAtivo) {
+    lenisAtivo.scrollTo(alvo, { onComplete: focar });
+  } else {
+    alvo.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth" });
+    focar();
+  }
+  history.replaceState(null, "", `#${id}`);
 }

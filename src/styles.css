@@ -34,6 +34,19 @@
      fluidas/arredondadas da logo (respingo de água). Títulos. */
   --font-display: "Outfit", "Inter", sans-serif;
   --font-sans: "Inter", sans-serif;
+
+  /* Landing (escopo .landing): expõe os tokens da marca como utilitários. */
+  --color-hm-primary: var(--hm-primary);
+  --color-hm-primary-900: var(--hm-primary-900);
+  --color-hm-primary-950: var(--hm-primary-950);
+  --color-hm-primary-700: var(--hm-primary-700);
+  --color-hm-primary-300: var(--hm-primary-300);
+  --color-hm-primary-100: var(--hm-primary-100);
+  --color-hm-accent: var(--hm-accent);
+  --color-hm-accent-ink: var(--hm-accent-ink);
+  --color-hm-bg: var(--hm-bg);
+  --color-hm-text: var(--hm-text);
+  --color-hm-text-muted: var(--hm-text-muted);
 }
 
 :root {
@@ -111,39 +124,40 @@
   }
 }
 
-/* Indicação de rolagem do hero: um traço vertical que "respira". */
-@keyframes scroll-cue {
-  0%, 100% { transform: scaleY(0.4); transform-origin: top; opacity: 0.3; }
-  50% { transform: scaleY(1); opacity: 0.8; }
-}
+/* ── Landing: tokens da marca ──
+   Escopados em .landing para não alterar o painel (que usa os tokens oklch
+   acima). Hex extraídos de src/lib/brand.ts e do --accent. Contraste medido:
+   âmbar sobre primary-900 = 8,9:1; branco sobre primary = 7,7:1; âmbar sobre
+   branco = 1,6:1 (por isso o âmbar nunca é texto sobre fundo claro). */
+.landing {
+  --hm-primary: #1e4fa6;
+  --hm-primary-950: #001a33;
+  --hm-primary-900: #002953;
+  --hm-primary-700: #1a4494;
+  --hm-primary-300: #5b9bff;
+  --hm-primary-100: #e8effb;
+  --hm-accent: #ffbf52;
+  --hm-accent-ink: #002953;
+  --hm-bg: #ffffff;
+  --hm-text: #0f2440;
+  --hm-text-muted: #4a5a70;
+  --hm-danger: #b42318;
+  --hm-success: #067647;
 
-/* ── Hero "profundidade submersa" ──
-   Bolhas sobem do fundo em direção à superfície, com leve deriva lateral.
-   Variáveis (--rise/--drift/--bmax) são definidas inline por bolha. */
-@keyframes bubble-rise {
-  0%   { transform: translate3d(0, 0, 0) scale(0.85); opacity: 0; }
-  12%  { opacity: var(--bmax, 0.5); }
-  85%  { opacity: var(--bmax, 0.5); }
-  100% { transform: translate3d(var(--drift, 10px), calc(-1 * var(--rise, 80vh)), 0) scale(1.1); opacity: 0; }
-}
-/* Raios de luz: só a opacidade "respira" (barato e suave). */
-@keyframes ray-breathe {
-  0%, 100% { opacity: 0.18; }
-  50%      { opacity: 0.38; }
-}
-/* Brilho de sol atravessando a superfície. */
-@keyframes sun-drift {
-  0%, 100% { opacity: 0.55; transform: translateX(-50%) scale(1); }
-  50%      { opacity: 0.85; transform: translateX(-50%) scale(1.08); }
-}
-/* Faixa de superfície luminosa. */
-@keyframes surface-shimmer {
-  0%, 100% { opacity: 0.55; }
-  50%      { opacity: 0.90; }
-}
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 32px;
+  --space-6: 48px;
+  --space-8: 64px;
+  --space-12: 96px;
+  --space-16: 128px;
 
-/* Menos movimento: congela a cena submersa e esconde as bolhas. */
-@media (prefers-reduced-motion: reduce) {
-  [data-ambient] .anim { animation: none !important; }
-  [data-ambient] .bubbles-layer { display: none; }
+  --text-body: 1rem;
+  --text-lead: clamp(1.125rem, 1rem + 0.5vw, 1.375rem);
+  --text-h2: clamp(2rem, 1.25rem + 3vw, 3.5rem);
+  --text-display: clamp(2.5rem, 1rem + 6vw, 6rem);
+  --leading-tight: 1.05;
+  --leading-body: 1.6;
+  --measure: 60ch;
 }

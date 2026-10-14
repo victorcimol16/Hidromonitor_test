@@ -1,9 +1,10 @@
 import { Hero } from "./components/Hero";
+import { Nav } from "./components/Nav";
 import { Problema } from "./components/Problema";
 import { HidrometroShowcase } from "./three/HidrometroShowcase";
 import { ComoFunciona } from "./components/ComoFunciona";
-import { Beneficios } from "./components/Beneficios";
-import { CtaFinal } from "./components/CtaFinal";
+import { Comparativo } from "./components/Comparativo";
+import { Contato } from "./components/Contato";
 import { SiteFooter } from "./components/SiteFooter";
 import { useSmoothScroll } from "./lib/useSmoothScroll";
 
@@ -18,14 +19,23 @@ export function MarketingPage() {
   useSmoothScroll();
 
   return (
-    <div className="relative min-h-screen overflow-x-clip bg-background">
-      <Hero />
-      <main>
+    <div className="landing relative min-h-screen overflow-x-clip bg-background">
+      <a
+        href="#conteudo"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-full focus:bg-white focus:px-5 focus:py-3 focus:font-semibold focus:text-hm-primary-900"
+      >
+        Pular para o conteúdo
+      </a>
+      <header>
+        <Nav />
+      </header>
+      <main id="conteudo">
+        <Hero />
         <Problema />
-        <HidrometroShowcase variant="brass" />
+        <HidrometroShowcase />
+        <Comparativo />
         <ComoFunciona />
-        <Beneficios />
-        <CtaFinal />
+        <Contato />
       </main>
       <SiteFooter />
     </div>
