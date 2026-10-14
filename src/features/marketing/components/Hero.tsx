@@ -63,8 +63,10 @@ export function Hero() {
           </a>
         </div>
 
-        {/* Quadro da água: retrato no desktop, paisagem no celular. */}
-        <div className="relative aspect-[4/3] w-full overflow-hidden rounded-sm lg:aspect-[4/5] lg:max-h-[68svh] lg:justify-self-end">
+        {/* Quadro da água: retrato recortado no desktop. Abaixo de `lg`, a água
+            sai do quadro e vai de borda a borda (quadrada no celular, paisagem
+            no tablet), anulando o respiro lateral do contêiner. */}
+        <div className="relative -mx-6 aspect-square overflow-hidden sm:aspect-[16/10] md:-mx-10 lg:mx-0 lg:aspect-[4/5] lg:max-h-[68svh] lg:w-full lg:justify-self-end lg:rounded-sm">
           <WaterScrub triggerRef={sectionRef} />
         </div>
       </div>

@@ -35,7 +35,8 @@ const ESPECIFICACOES = [
  * Uma ideia: cada apartamento tem o próprio hidrômetro, e a leitura sai dele
  * sozinha. Um único efeito: o modelo 3D (convertido do STEP real) gira devagar
  * com o scroll. Desktop (≥ 1024px): seção de 180svh com palco fixo. Abaixo
- * disso: sem palco fixo; o modelo gira enquanto atravessa a tela.
+ * disso: o modelo fica preso no alto da tela (sticky, com o fundo da seção) e
+ * os itens da ficha passam por baixo dele, um a um, enquanto ele gira.
  *
  * Carregamento: o poster estático (mesma pose e luz do 3D) aparece primeiro. O
  * three.js + modelo (~1 MB) só baixam quando a seção chega perto da tela, e o
@@ -100,7 +101,7 @@ export function HidrometroShowcase() {
           const st = ScrollTrigger.create({
             ...(desktop
               ? { trigger: section, start: "top top", end: "bottom bottom" }
-              : { trigger: stage, start: "top bottom", end: "bottom top" }),
+              : { trigger: section, start: "top top", end: "bottom bottom" }),
             onUpdate: (self) => setShowcaseProgress(self.progress),
           });
           setShowcaseProgress(st.progress);
@@ -127,11 +128,12 @@ export function HidrometroShowcase() {
     >
       <div className="mx-auto grid w-full max-w-6xl items-center gap-[var(--space-6)] px-6 py-[var(--space-8)] md:px-10 md:py-[var(--space-12)] lg:sticky lg:top-0 lg:h-[100svh] lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:gap-[var(--space-6)] lg:py-0">
         {/* Celular: título → modelo → ficha (o wrapper do texto vira `contents`
-            para o título e a ficha entrarem na grade um de cada lado do modelo). */}
-        <figure className="order-2 lg:order-none">
+            para o título e a ficha entrarem na grade um de cada lado do modelo).
+            O modelo gruda no topo com o fundo da seção, e a ficha rola por baixo. */}
+        <figure className="order-2 max-lg:sticky max-lg:top-0 max-lg:z-10 max-lg:bg-hm-primary-900 max-lg:pb-[var(--space-2)] max-lg:pt-[var(--space-2)] lg:order-none">
           <div
             ref={stageRef}
-            className="relative mx-auto aspect-square w-full max-w-[min(620px,74svh)] max-sm:max-w-[340px]"
+            className="relative mx-auto aspect-square w-full max-w-[min(620px,74svh)] max-lg:max-w-[min(340px,46svh)]"
           >
             {/* Estúdio (CSS, vale para poster e 3D): luz suave atrás e sombra
                 de contato no chão, para o modelo não "flutuar" no azul. */}
@@ -194,7 +196,7 @@ export function HidrometroShowcase() {
             {ESPECIFICACOES.map((e) => (
               <div
                 key={e.termo}
-                className="grid grid-cols-[10rem_minmax(0,1fr)] gap-[var(--space-2)] border-b border-white/15 py-[var(--space-2)] max-sm:grid-cols-1 max-sm:gap-1"
+                className="grid grid-cols-[10rem_minmax(0,1fr)] gap-[var(--space-2)] border-b border-white/15 py-[var(--space-2)] max-sm:grid-cols-1 max-sm:gap-1 max-lg:py-[var(--space-4)]"
               >
                 <dt className="font-semibold text-white">{e.termo}</dt>
                 <dd className="leading-snug text-white/75">{e.descricao}</dd>

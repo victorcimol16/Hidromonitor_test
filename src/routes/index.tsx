@@ -32,12 +32,22 @@ export const Route = createFileRoute("/")({
       { name: "twitter:description", content: DESCRICAO },
     ],
     links: [
-      // Poster do quadro de água do hero (ver WaterScrub).
+      // Poster do quadro de água do hero (ver WaterScrub): recorte quadrado no
+      // celular, paisagem a partir de 768px — mesmos `media` do <picture>.
+      {
+        rel: "preload",
+        as: "image",
+        href: "/video/agua-poster-mobile-720.webp",
+        type: "image/webp",
+        media: "(max-width: 767px)",
+        fetchPriority: "high",
+      },
       {
         rel: "preload",
         as: "image",
         href: "/video/agua-poster-960.webp",
         type: "image/webp",
+        media: "(min-width: 768px)",
         fetchPriority: "high",
       },
     ],
