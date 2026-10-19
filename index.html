@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>HidroMonitor — medição individual de água para condomínios</title>
+    <meta
+      name="description"
+      content="Medição individual do consumo de água por apartamento, em tempo real, com hidrômetros certificados pelo Inmetro e alerta de vazamento. Rateio justo conforme a Lei 13.312/2016."
+    />
+    <meta name="theme-color" content="#00142b" />
+    <link rel="icon" type="image/png" href="/img/logo-mark-64.png" />
+    <link rel="preload" as="image" href="/models/hidrometro-fechado.webp" type="image/webp" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:title" content="HidroMonitor — cada unidade paga pela água que usa" />
+    <meta property="og:description" content="Prevenção e monitoramento em tempo real do fluxo de água em condomínios." />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "HidroMonitor",
+        "slogan": "Prevenção e monitoramento em tempo real do fluxo de água",
+        "address": { "@type": "PostalAddress", "addressLocality": "Taquara", "addressRegion": "RS", "addressCountry": "BR" },
+        "sameAs": ["https://www.instagram.com/hidromonitor/"]
+      }
+    </script>
+    <script>
+      // liga o modo "movimento" antes da primeira pintura (evita salto de layout)
+      if (!matchMedia("(prefers-reduced-motion: reduce)").matches) document.documentElement.classList.add("motion");
+    </script>
+    <script type="module" src="/src/main.js"></script>
+  </head>
+  <body>
+    <a class="skip" href="#conteudo">Pular para o conteúdo</a>
+
+    <header class="top">
+      <a class="brand" href="#topo" aria-label="HidroMonitor, início">
+        <img src="/img/logo-mark-dark.webp" width="96" height="80" alt="" />
+        <span class="wordmark" translate="no"><span class="w-hidro">Hidro</span><span class="w-monitor">Monitor</span></span>
+      </a>
+      <a
+        class="top-cta"
+        href="https://wa.me/5554992681225?text=Ol%C3%A1!%20Vim%20pelo%20site%20do%20HidroMonitor%20e%20quero%20saber%20mais%20sobre%20a%20medi%C3%A7%C3%A3o%20individual%20de%20%C3%A1gua%20no%20meu%20condom%C3%ADnio."
+        target="_blank"
+        rel="noopener noreferrer"
+        >Fale com a gente <span aria-hidden="true">→</span><span class="sr-only"> (WhatsApp, abre em nova aba)</span></a
+      >
+    </header>
+
+    <main id="conteudo" tabindex="-1">
+      <section class="show" id="topo" aria-labelledby="hero-title">
+        <div class="show-pin">
+          <p class="giant" aria-hidden="true" translate="no"><span class="w-hidro">Hidro</span><span class="w-monitor">Monitor</span></p>
+
+          <div class="show-visual">
+            <img
+              class="poster poster-closed"
+              src="/models/hidrometro-fechado.webp"
+              width="1400"
+              height="1400"
+              alt="Hidrômetro residencial com corpo azul, conexões de latão e tampa preta aberta sobre o mostrador"
+              fetchpriority="high"
+            />
+            <img
+              class="poster poster-open"
+              src="/models/hidrometro-aberto.webp"
+              width="1400"
+              height="1400"
+              alt="O mesmo hidrômetro em vista explodida: tampa, lente, visor, mostrador, rodas do totalizador, carcaça e corpo separados na vertical"
+              loading="lazy"
+            />
+            <div class="canvas-box" aria-hidden="true"></div>
+          </div>
+
+          <div class="show-intro" data-beat="intro">
+            <div class="intro-text">
+              <h1 id="hero-title"><span>Cada unidade paga</span> <span>pela água que usa.</span></h1>
+              <p class="slogan">Prevenção e monitoramento em tempo real do fluxo de água.</p>
+            </div>
+            <a
+              class="btn show-cta"
+              href="https://wa.me/5554992681225?text=Ol%C3%A1!%20Vim%20pelo%20site%20do%20HidroMonitor%20e%20quero%20saber%20mais%20sobre%20a%20medi%C3%A7%C3%A3o%20individual%20de%20%C3%A1gua%20no%20meu%20condom%C3%ADnio."
+              target="_blank"
+              rel="noopener noreferrer"
+              >Fale com a gente <span class="arrow" aria-hidden="true">→</span><span class="sr-only"> (WhatsApp, abre em nova aba)</span></a
+            >
+          </div>
+
+          <h2 class="sr-only" id="por-dentro">Por dentro do hidrômetro</h2>
+          <ul class="callouts" aria-labelledby="por-dentro" data-beat="open">
+            <li class="c-tampa"><strong>Tampa e lente</strong> Protegem o mostrador sem esconder a leitura.</li>
+            <li class="c-total"><strong>Totalizador</strong> Rodas que somam o volume em metros cúbicos.</li>
+            <li class="c-pulso"><strong>Saída de pulso</strong> Um reed switch converte as voltas em pulsos que o HidroMonitor conta.</li>
+            <li class="c-corpo"><strong>Corpo e conexões</strong> Instalado na entrada de água de cada apartamento.</li>
+          </ul>
+
+          <p class="show-outro" data-beat="outro">
+            <strong>Montado de novo, contando cada litro.</strong>
+            Hidrômetros certificados pelo Inmetro, com saída de pulso.
+          </p>
+
+          <p class="show-caption">Modelo 3D ilustrativo de hidrômetro residencial DN ¾″</p>
+        </div>
+      </section>
+
+      <!-- O problema + simulador de rateio -->
+      <section class="problema" id="problema" aria-labelledby="problema-title">
+        <div class="problema-head" data-enter>
+          <h2 id="problema-title" class="h-xl"><span>A conta chega igual.</span> <span>O consumo, não.</span></h2>
+          <div class="captions">
+            <p>Sem medição individual, a conta do prédio é dividida em partes iguais, use cada um o que usar.</p>
+            <p>Um vazamento dentro de um apartamento vira custo de todos, e ninguém sabe de onde vem.</p>
+          </div>
+        </div>
+
+        <div class="sim" data-enter>
+          <form class="sim-form" id="simulador" aria-labelledby="sim-title" novalidate>
+            <h3 id="sim-title">Faça a conta do seu prédio</h3>
+            <p class="sim-note">Os campos vêm com valores de exemplo. Troque pelos da sua conta.</p>
+            <div class="field">
+              <label for="sim-total">Valor da conta de água do prédio</label>
+              <div class="input-wrap"><span aria-hidden="true">R$</span><input id="sim-total" name="total" type="text" inputmode="decimal" value="4.800,00" autocomplete="off" aria-describedby="sim-total-err" /></div>
+              <p class="field-err" aria-live="polite" id="sim-total-err"></p>
+            </div>
+            <div class="field">
+              <label for="sim-unidades">Número de apartamentos</label>
+              <div class="input-wrap"><input id="sim-unidades" name="unidades" type="text" inputmode="numeric" value="12" autocomplete="off" aria-describedby="sim-unidades-err" /></div>
+              <p class="field-err" aria-live="polite" id="sim-unidades-err"></p>
+            </div>
+            <div class="field">
+              <label for="sim-predio">Consumo do prédio no mês</label>
+              <div class="input-wrap"><input id="sim-predio" name="predio" type="text" inputmode="decimal" value="240" autocomplete="off" aria-describedby="sim-predio-err" /><span aria-hidden="true">m³</span></div>
+              <p class="field-err" aria-live="polite" id="sim-predio-err"></p>
+            </div>
+            <div class="field">
+              <label for="sim-unidade">Consumo do seu apartamento</label>
+              <div class="input-wrap"><input id="sim-unidade" name="unidade" type="text" inputmode="decimal" value="12" autocomplete="off" aria-describedby="sim-unidade-err" /><span aria-hidden="true">m³</span></div>
+              <p class="field-err" aria-live="polite" id="sim-unidade-err"></p>
+            </div>
+          </form>
+
+          <div class="sim-result" aria-live="polite" aria-atomic="true">
+            <div class="sim-row">
+              <p class="sim-value"><span data-out="igual">R$ 400,00</span> <span class="sim-label">dividindo a conta em partes iguais</span></p>
+              <div class="sim-bar" aria-hidden="true"><span data-bar="igual"></span></div>
+            </div>
+            <div class="sim-row is-fair">
+              <p class="sim-value"><span data-out="justo">R$ 240,00</span> <span class="sim-label">pelo que o seu apartamento usou</span></p>
+              <div class="sim-bar" aria-hidden="true"><span data-bar="justo"></span></div>
+            </div>
+            <p class="sim-diff" data-out="diff">Você pagaria R$ 160,00 a menos por mês.</p>
+            <p class="sim-foot">Cálculo simplificado: não considera tarifa mínima, áreas comuns nem faixas de consumo da concessionária.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Como funciona: três etapas que crescem -->
+      <section class="como" id="como-funciona" aria-labelledby="como-title">
+        <h2 id="como-title" class="h-l" data-enter>Do cano ao painel</h2>
+        <ol class="tiles">
+          <li class="tile tile-1" data-enter>
+            <div class="tile-field">
+              <img src="/models/hidrometro-fechado.webp" width="1400" height="1400" alt="Hidrômetro com corpo azul e conexões de latão" loading="lazy" />
+            </div>
+            <h3>Mede</h3>
+            <p>O hidrômetro certificado pelo Inmetro registra a água que entra em cada apartamento.</p>
+          </li>
+          <li class="tile tile-2" data-enter>
+            <div class="tile-field">
+              <svg class="pulse" viewBox="0 0 400 160" role="img" aria-label="Desenho de um trem de pulsos elétricos: cada degrau é um volume fixo de água">
+                <path d="M0 120 H40 V40 H80 V120 H140 V40 H180 V120 H240 V40 H280 V120 H340 V40 H380 V120 H400" fill="none" stroke="currentColor" stroke-width="8" stroke-linejoin="round" />
+              </svg>
+            </div>
+            <h3>Conta</h3>
+            <p>O sensor lê a saída de pulso. Cada pulso é um volume fixo de água, definido pelo hidrômetro.</p>
+          </li>
+          <li class="tile tile-3" data-enter>
+            <div class="tile-field">
+              <div class="mini" data-ui aria-hidden="true">
+                <p class="mini-title">Apto 302 · hoje</p>
+                <p class="mini-num">186 <small>litros</small></p>
+                <div class="mini-bars"><i style="--h:30%"></i><i style="--h:55%"></i><i style="--h:20%"></i><i style="--h:80%"></i><i style="--h:45%"></i><i style="--h:65%"></i><i style="--h:35%"></i></div>
+              </div>
+            </div>
+            <h3>Mostra</h3>
+            <p>O consumo de cada unidade aparece no painel em tempo real. <span class="tag">Tela de exemplo</span></p>
+          </li>
+        </ol>
+      </section>
+
+      <!-- Benefícios: pontos marcados por forma -->
+      <section class="beneficios" id="beneficios" aria-labelledby="ben-title">
+        <figure class="ben-figure" data-enter>
+          <img src="/models/hidrometro-cima.webp" width="1200" height="1200" alt="Hidrômetro visto de cima, com a tampa aberta mostrando o mostrador e o ponteiro vermelho" loading="lazy" />
+        </figure>
+        <div class="ben-body">
+          <h2 id="ben-title" class="h-l" data-enter>Bom para cada lado do prédio</h2>
+          <div class="ben-grid">
+            <div class="ben-col ben-sindico" data-enter>
+              <h3>Para o síndico</h3>
+              <ul>
+                <li><strong>Rateio sem discussão</strong> Cada cobrança sai do consumo medido da unidade.</li>
+                <li><strong>Vazamento à vista</strong> Consumo fora do padrão aparece no painel.</li>
+                <li><strong>Menos leitura manual</strong> O pulso substitui a volta pelos apartamentos.</li>
+              </ul>
+            </div>
+            <div class="ben-col ben-morador" data-enter>
+              <h3>Para o morador</h3>
+              <ul>
+                <li><strong>Paga o que usa</strong> A conta deixa de depender do vizinho.</li>
+                <li><strong>Vê o próprio consumo</strong> Dia a dia, e não só quando chega a fatura.</li>
+                <li><strong>Descobre vazamentos cedo</strong> Descarga ou torneira vazando aparecem antes da conta.</li>
+              </ul>
+            </div>
+            <div class="ben-col ben-construtora" data-enter>
+              <h3>Para a construtora</h3>
+              <ul>
+                <li><strong>Atende à lei</strong> A Lei 13.312/2016 exige medição individualizada em edificações novas.</li>
+                <li><strong>Pronto desde a entrega</strong> O prédio já nasce medindo por unidade.</li>
+                <li><strong>Um argumento de venda</strong> Conta de água justa é algo que o comprador entende.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Conformidade: faixa de nomes -->
+      <section class="conformidade" id="conformidade" aria-labelledby="conf-title">
+        <h2 id="conf-title" class="sr-only">Conformidade</h2>
+        <div class="band" aria-hidden="true">
+          <div class="band-track">
+            <span>Lei 13.312/2016</span><span>Inmetro</span><span>Saída de pulso</span><span>Medição individualizada</span>
+            <span>Lei 13.312/2016</span><span>Inmetro</span><span>Saída de pulso</span><span>Medição individualizada</span>
+          </div>
+        </div>
+        <div class="conf-text" data-enter>
+          <p><strong>Lei 13.312/2016.</strong> Torna obrigatória a medição individualizada do consumo de água nas novas edificações em condomínio.</p>
+          <p><strong>Inmetro.</strong> Os hidrômetros que instalamos são certificados pelo Inmetro e têm saída de pulso.</p>
+        </div>
+      </section>
+
+      <!-- Painel: objeto sobre um disco -->
+      <section class="painel" id="painel" aria-labelledby="painel-title">
+        <div class="painel-list" data-enter>
+          <h2 id="painel-title">O painel</h2>
+          <div role="tablist" aria-label="Telas do painel" class="tabs">
+            <button type="button" role="tab" id="tab-hoje" aria-controls="tela-hoje" aria-selected="true" data-fact="Consumo do prédio hora a hora, somando todas as unidades.">Consumo de hoje</button>
+            <button type="button" role="tab" id="tab-mes" aria-controls="tela-mes" aria-selected="false" tabindex="-1" data-fact="O mês de cada apartamento lado a lado, em metros cúbicos.">Mês por unidade</button>
+            <button type="button" role="tab" id="tab-alerta" aria-controls="tela-alerta" aria-selected="false" tabindex="-1" data-fact="Fluxo que não para durante a madrugada vira alerta para o síndico.">Alerta de vazamento</button>
+            <button type="button" role="tab" id="tab-rateio" aria-controls="tela-rateio" aria-selected="false" tabindex="-1" data-fact="A conta do prédio dividida pelo consumo medido de cada unidade.">Rateio do mês</button>
+          </div>
+        </div>
+
+        <div class="painel-stage" data-enter>
+          <div class="disc" aria-hidden="true"></div>
+          <div class="screen" data-ui>
+            <div class="screen-bar"><span>HidroMonitor</span><span>Exemplo ilustrativo</span></div>
+
+            <div role="tabpanel" id="tela-hoje" aria-labelledby="tab-hoje" class="tela" tabindex="0">
+              <p class="tela-k">Edifício exemplo · hoje até 14h</p>
+              <p class="tela-big">3.412 <small>litros</small></p>
+              <div class="hours" aria-hidden="true">
+                <i style="--h:8%"></i><i style="--h:5%"></i><i style="--h:4%"></i><i style="--h:6%"></i><i style="--h:22%"></i><i style="--h:58%"></i><i style="--h:74%"></i><i style="--h:46%"></i><i style="--h:30%"></i><i style="--h:26%"></i><i style="--h:38%"></i><i style="--h:62%"></i><i style="--h:41%"></i><i style="--h:33%"></i>
+              </div>
+              <p class="tela-axis"><span>0h</span><span>7h</span><span>14h</span></p>
+            </div>
+
+            <div role="tabpanel" id="tela-mes" aria-labelledby="tab-mes" class="tela" tabindex="0" hidden>
+              <p class="tela-k">Outubro · por apartamento</p>
+              <table class="units">
+                <caption class="sr-only">Consumo do mês por apartamento, dados de exemplo</caption>
+                <thead><tr><th scope="col">Apto</th><th scope="col">m³</th><th scope="col"><span class="sr-only">Proporção</span></th></tr></thead>
+                <tbody>
+                  <tr><th scope="row">101</th><td>9,8</td><td><span class="ubar" style="--w:41%"></span></td></tr>
+                  <tr><th scope="row">102</th><td>23,6</td><td><span class="ubar" style="--w:100%"></span></td></tr>
+                  <tr><th scope="row">201</th><td>14,1</td><td><span class="ubar" style="--w:60%"></span></td></tr>
+                  <tr><th scope="row">202</th><td>6,3</td><td><span class="ubar" style="--w:27%"></span></td></tr>
+                  <tr><th scope="row">301</th><td>17,9</td><td><span class="ubar" style="--w:76%"></span></td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div role="tabpanel" id="tela-alerta" aria-labelledby="tab-alerta" class="tela" tabindex="0" hidden>
+              <p class="tela-k">Alerta · Apto 202</p>
+              <p class="alert"><strong>Fluxo contínuo há 6 horas</strong> Entre 1h e 7h o consumo nunca chegou a zero. Pode ser descarga ou torneira vazando.</p>
+              <div class="hours is-alert" aria-hidden="true">
+                <i style="--h:14%"></i><i style="--h:14%"></i><i style="--h:14%"></i><i style="--h:14%"></i><i style="--h:14%"></i><i style="--h:14%"></i><i style="--h:40%"></i><i style="--h:55%"></i><i style="--h:30%"></i>
+              </div>
+              <p class="tela-axis"><span>1h</span><span>5h</span><span>9h</span></p>
+            </div>
+
+            <div role="tabpanel" id="tela-rateio" aria-labelledby="tab-rateio" class="tela" tabindex="0" hidden>
+              <p class="tela-k">Rateio de outubro</p>
+              <dl class="rateio">
+                <div><dt>Conta do prédio</dt><dd>R$ 4.800,00</dd></div>
+                <div><dt>Consumo medido</dt><dd>240 m³</dd></div>
+                <div><dt>Apto 202 · 6,3 m³</dt><dd>R$ 126,00</dd></div>
+                <div><dt>Apto 102 · 23,6 m³</dt><dd>R$ 472,00</dd></div>
+              </dl>
+            </div>
+          </div>
+        </div>
+
+        <p class="painel-fact" data-fact-out>Consumo do prédio hora a hora, somando todas as unidades.</p>
+      </section>
+
+      <!-- Dúvidas -->
+      <section class="faq" id="duvidas" aria-labelledby="faq-title">
+        <h2 id="faq-title" class="h-xl" data-enter>Perguntas de quem administra</h2>
+        <div class="faq-list">
+          <details data-enter>
+            <summary>Precisa trocar os hidrômetros do prédio?</summary>
+            <p>Depende do que já existe. Avaliamos os hidrômetros instalados; quando eles não têm saída de pulso, instalamos hidrômetros certificados pelo Inmetro que têm.</p>
+          </details>
+          <details data-enter>
+            <summary>O que é saída de pulso?</summary>
+            <p>É um contato elétrico no hidrômetro, um reed switch, que fecha a cada volume fixo de água que passa. O sensor conta esses pulsos e transforma em litros, sem ninguém precisar ler o mostrador.</p>
+          </details>
+          <details data-enter>
+            <summary>Como o vazamento aparece?</summary>
+            <p>Uma unidade que nunca para de consumir, por exemplo durante toda a madrugada, foge do padrão e aparece como alerta no painel.</p>
+          </details>
+          <details data-enter>
+            <summary>A lei obriga o meu condomínio?</summary>
+            <p>A Lei 13.312/2016 vale para edificações novas. Em prédios existentes, adotar a medição individual é uma decisão do condomínio.</p>
+          </details>
+          <details data-enter>
+            <summary>Quanto custa?</summary>
+            <p>Depende do número de apartamentos e de como está a instalação hoje. Fale com a gente para um orçamento do seu prédio. <span class="tag">[DADO REAL AQUI: faixa de preço ou modelo de cobrança]</span></p>
+          </details>
+          <details data-enter>
+            <summary>Vocês atendem a minha cidade?</summary>
+            <p>Estamos em Taquara, no Rio Grande do Sul. <span class="tag">[DADO REAL AQUI: área atendida]</span></p>
+          </details>
+        </div>
+      </section>
+
+      <!-- Contato: fechamento grande -->
+      <section class="contato" id="contato" aria-labelledby="contato-title">
+        <h2 id="contato-title" class="h-xl" data-enter><span>Vamos medir</span> <span>o seu prédio?</span></h2>
+        <ul class="contact-rows">
+          <li data-enter>
+            <a href="https://wa.me/5554992681225?text=Ol%C3%A1!%20Vim%20pelo%20site%20do%20HidroMonitor%20e%20quero%20saber%20mais%20sobre%20a%20medi%C3%A7%C3%A3o%20individual%20de%20%C3%A1gua%20no%20meu%20condom%C3%ADnio." target="_blank" rel="noopener noreferrer">
+              <span class="row-label">WhatsApp · mensagem pronta</span>
+              <span class="row-value">(54) 99268-1225</span>
+              <span class="row-arrow" aria-hidden="true">→</span>
+              <span class="sr-only"> (abre em nova aba)</span>
+            </a>
+          </li>
+          <li data-enter>
+            <a href="https://www.instagram.com/hidromonitor/" target="_blank" rel="noopener noreferrer">
+              <span class="row-label">Instagram</span>
+              <span class="row-value">@hidromonitor</span>
+              <span class="row-arrow" aria-hidden="true">→</span>
+              <span class="sr-only"> (abre em nova aba)</span>
+            </a>
+          </li>
+        </ul>
+        <p class="contact-note" data-enter>Taquara, RS · conte quantos apartamentos tem o prédio e a gente responde com o próximo passo.</p>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <div class="foot-grid">
+        <div class="foot-brand">
+          <a class="brand" href="#topo" aria-label="HidroMonitor, voltar ao início">
+            <img src="/img/logo-mark-dark.webp" width="96" height="80" alt="" loading="lazy" />
+            <span class="wordmark" translate="no"><span class="w-hidro">Hidro</span><span class="w-monitor">Monitor</span></span>
+          </a>
+          <p>Água medida, conta justa. Medição individual de água para condomínios, feita em Taquara, RS.</p>
+        </div>
+        <nav aria-label="Seções da página">
+          <ul class="foot-list">
+            <li><a href="#problema">O problema</a></li>
+            <li><a href="#como-funciona">Como funciona</a></li>
+            <li><a href="#beneficios">Benefícios</a></li>
+            <li><a href="#painel">Painel</a></li>
+            <li><a href="#duvidas">Dúvidas</a></li>
+          </ul>
+        </nav>
+        <ul class="foot-list">
+          <li><a href="https://wa.me/5554992681225?text=Ol%C3%A1!%20Vim%20pelo%20site%20do%20HidroMonitor%20e%20quero%20saber%20mais%20sobre%20a%20medi%C3%A7%C3%A3o%20individual%20de%20%C3%A1gua%20no%20meu%20condom%C3%ADnio." target="_blank" rel="noopener noreferrer">WhatsApp (54) 99268-1225<span class="sr-only"> (abre em nova aba)</span></a></li>
+          <li><a href="https://www.instagram.com/hidromonitor/" target="_blank" rel="noopener noreferrer">Instagram @hidromonitor<span class="sr-only"> (abre em nova aba)</span></a></li>
+          <li>Taquara, RS</li>
+        </ul>
+      </div>
+      <p class="imprint">© 2026 HidroMonitor · Prevenção e monitoramento em tempo real do fluxo de água</p>
+    </footer>
+  </body>
+</html>
