@@ -48,24 +48,6 @@ test("screenshots de cada seção (após a entrada animar)", async ({ page }, in
   await foot.screenshot({ path: `shots/${info.project.name}-11-rodape.png` });
 });
 
-test("simulador de rateio calcula e valida", async ({ page }) => {
-  await page.goto("/");
-  await expect(page.locator('[data-out="igual"]')).toHaveText(/400,00/);
-  await expect(page.locator('[data-out="justo"]')).toHaveText(/240,00/);
-  await page.fill("#sim-total", "6.000,00");
-  await page.fill("#sim-unidades", "10");
-  await page.fill("#sim-predio", "300");
-  await page.fill("#sim-unidade", "45");
-  await expect(page.locator('[data-out="igual"]')).toHaveText(/600,00/);
-  await expect(page.locator('[data-out="justo"]')).toHaveText(/900,00/);
-  await expect(page.locator('[data-out="diff"]')).toContainText("a mais");
-  await page.fill("#sim-unidade", "400");
-  await expect(page.locator("#sim-unidade-err")).toContainText("maior que o consumo do prédio");
-  await expect(page.locator("#sim-unidade")).toHaveAttribute("aria-invalid", "true");
-  await page.fill("#sim-unidades", "abc");
-  await expect(page.locator("#sim-unidades-err")).not.toBeEmpty();
-});
-
 test("abas do painel: clique e setas do teclado", async ({ page }) => {
   await page.goto("/");
   await page.locator("#tab-alerta").click();

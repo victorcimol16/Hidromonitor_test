@@ -244,51 +244,11 @@ h3 { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.01em
   background: #12345e; color: var(--ink); font-size: var(--t-small); line-height: 1.5;
 }
 
-/* ---------- O problema + simulador ---------- */
-.sim > *, .painel > *, .beneficios > * { min-width: 0; }
+/* ---------- O problema ---------- */
+.painel > *, .beneficios > * { min-width: 0; }
 .problema-head { max-width: 1200px; }
 .captions { display: flex; flex-wrap: wrap; gap: var(--s-2) var(--s-6); margin-top: var(--s-4); }
 .captions p { width: 300px; color: var(--muted); font-size: var(--t-small); line-height: 1.5; }
-
-.sim {
-  margin-top: var(--s-8);
-  display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: var(--s-8);
-  padding: clamp(28px, 4vw, 64px);
-  background: var(--night-2); border-radius: var(--radius);
-}
-.sim-form h3 { font-size: 2rem; line-height: 1.1; }
-.sim-note { margin-top: var(--s-1); color: var(--muted); font-size: var(--t-small); }
-.field { margin-top: var(--s-3); }
-.field label { display: block; font-size: var(--t-small); font-weight: 600; margin-bottom: 6px; }
-.input-wrap {
-  display: flex; align-items: center; gap: 10px;
-  height: 54px; padding: 0 16px;
-  background: var(--night); border: 1px solid #2c4c78; border-radius: var(--radius); /* taste-skill-ignore: campo de formulário */
-  color: var(--muted); font-size: 1.125rem;
-}
-.input-wrap:focus-within { border-color: var(--sky); outline: 3px solid rgba(91, 155, 255, 0.35); outline-offset: 0; }
-.input-wrap input {
-  flex: 1; min-width: 0; height: 100%; border: 0; background: transparent; outline: none;
-  color: var(--ink); font: 600 1.25rem/1 var(--font-text); font-variant-numeric: tabular-nums;
-}
-.field.has-error .input-wrap { border-color: #ff8f80; }
-.field-err { min-height: 1.4em; margin-top: 4px; color: #ffb3a8; font-size: 0.9375rem; }
-
-.sim-result { align-self: center; display: grid; gap: var(--s-4); }
-.sim-label {
-  display: block; margin-top: var(--s-1);
-  font: 400 var(--t-small)/1.4 var(--font-text); letter-spacing: 0; color: var(--muted);
-}
-.sim-value {
-  font-family: var(--font-display); font-weight: 700; font-variant-numeric: tabular-nums;
-  font-size: clamp(2.5rem, 1.4rem + 3vw, 4.25rem); line-height: 1; letter-spacing: -0.03em;
-}
-.sim-row:not(.is-fair) .sim-value { color: var(--muted); font-weight: 300; }
-.sim-bar { margin-top: var(--s-2); height: 14px; background: var(--night); border-radius: 2px; overflow: hidden; }
-.sim-bar span { display: block; height: 100%; width: var(--w, 100%); background: #3e5f8c; transform-origin: left; transition: width 0.6s var(--ease-out); }
-.is-fair .sim-bar span { background: var(--sky); }
-.sim-diff { font-size: 1.375rem; line-height: 1.35; font-weight: 600; }
-.sim-foot { color: var(--muted); font-size: var(--t-small); }
 
 /* ---------- Como funciona ---------- */
 .como { display: grid; }
@@ -476,9 +436,43 @@ main > section.conformidade { padding: 0; }
 .foot-list a:hover { color: var(--sky); text-decoration: underline; }
 .imprint { margin-top: var(--s-6); font-size: 0.8125rem; color: var(--muted); }
 
+/* ---------- Ondas decorativas ----------
+   Curvas simples, não realistas. Cada camada tem dois períodos e desliza
+   -50% em loop; camadas com velocidades e sentidos diferentes. */
+.wave {
+  position: relative; height: clamp(56px, 8vw, 128px);
+  overflow: hidden; pointer-events: none;
+}
+.wave-layer {
+  position: absolute; left: 0; bottom: 0; width: 200%; height: 100%;
+  animation: wave-slide var(--dur, 18s) linear infinite;
+}
+.wave-layer-2 { --dur: 11s; animation-direction: reverse; }
+.wave-layer-3 { --dur: 26s; }
+@keyframes wave-slide { to { transform: translateX(-50%); } }
+
+/* só linhas: entre o hero e o problema */
+.wave-lines { height: clamp(72px, 10vw, 150px); margin-bottom: calc(-1 * clamp(28px, 3vw, 48px)); }
+.wave-lines path { fill: none; stroke-width: 3; vector-effect: non-scaling-stroke; }
+.wave-lines .wave-layer-1 path { stroke: var(--ocean); opacity: 0.9; }
+.wave-lines .wave-layer-2 path { stroke: var(--sky); opacity: 0.7; }
+.wave-lines .wave-layer-3 path { stroke: var(--blue); opacity: 1; }
+
+/* preenchidas: a de trás mais clara, a da frente encosta na faixa seguinte */
+.wave-ice { color: var(--ice); margin-bottom: -1px; }
+.wave-foot { color: var(--night-2); margin-bottom: -1px; }
+.wave path { fill: currentColor; }
+.wave-lines path { fill: none; }
+.wave-ice .wave-layer-1 { color: var(--ocean); bottom: 4px; } /* não vaza na emenda com a faixa */
+.wave-foot .wave-layer-1 { color: var(--deep); }
+.wave-flip { transform: scaleY(-1); margin: -1px 0 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .wave-layer { animation: none; }
+}
+
 /* ---------- Telas médias e celulares ---------- */
 @media (max-width: 1023px) {
-  .sim { grid-template-columns: minmax(0, 1fr); }
   .beneficios { grid-template-columns: minmax(0, 1fr); }
   .ben-figure { width: min(82vw, 420px); justify-self: center; }
   .ben-grid { grid-template-columns: 1fr; gap: var(--s-6); }
@@ -519,18 +513,6 @@ main > section.conformidade { padding: 0; }
   .mini-bars { height: 36px; gap: 3px; margin-top: 6px; }
   .pulse { width: 82%; }
   .tile .tag { margin-top: 6px; }
-  /* simulador mais curto: campos em duas colunas */
-  .sim { padding: 24px 20px; gap: var(--s-4); margin-top: var(--s-6); }
-  .sim-form { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 12px; }
-  .sim-form h3, .sim-note { grid-column: 1 / -1; }
-  .field { margin-top: var(--s-2); display: flex; flex-direction: column; }
-  .field label { flex: 1; font-size: 0.875rem; }
-  .input-wrap { height: 50px; padding: 0 12px; font-size: 1rem; }
-  .input-wrap input { font-size: 1.125rem; }
-  .field-err { font-size: 0.8125rem; }
-  .sim-result { gap: var(--s-3); }
-  .sim-value { font-size: 2.25rem; }
-  .sim-diff { font-size: 1.1875rem; }
   .band { height: 22vh; min-height: 140px; }
   .band-track { font-size: 15vw; }
   .conf-text { grid-template-columns: 1fr; padding: var(--s-4) 20px var(--s-8); }

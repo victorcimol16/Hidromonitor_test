@@ -104,7 +104,9 @@
         </div>
       </section>
 
-      <!-- O problema + simulador de rateio -->
+      <div class="wave wave-lines" data-wave="lines" aria-hidden="true"></div>
+
+      <!-- O problema -->
       <section class="problema" id="problema" aria-labelledby="problema-title">
         <div class="problema-head" data-enter>
           <h2 id="problema-title" class="h-xl"><span>A conta chega igual.</span> <span>O consumo, não.</span></h2>
@@ -113,47 +115,9 @@
             <p>Um vazamento dentro de um apartamento vira custo de todos, e ninguém sabe de onde vem.</p>
           </div>
         </div>
-
-        <div class="sim" data-enter>
-          <form class="sim-form" id="simulador" aria-labelledby="sim-title" novalidate>
-            <h3 id="sim-title">Faça a conta do seu prédio</h3>
-            <p class="sim-note">Os campos vêm com valores de exemplo. Troque pelos da sua conta.</p>
-            <div class="field">
-              <label for="sim-total">Valor da conta de água do prédio</label>
-              <div class="input-wrap"><span aria-hidden="true">R$</span><input id="sim-total" name="total" type="text" inputmode="decimal" value="4.800,00" autocomplete="off" aria-describedby="sim-total-err" /></div>
-              <p class="field-err" aria-live="polite" id="sim-total-err"></p>
-            </div>
-            <div class="field">
-              <label for="sim-unidades">Número de apartamentos</label>
-              <div class="input-wrap"><input id="sim-unidades" name="unidades" type="text" inputmode="numeric" value="12" autocomplete="off" aria-describedby="sim-unidades-err" /></div>
-              <p class="field-err" aria-live="polite" id="sim-unidades-err"></p>
-            </div>
-            <div class="field">
-              <label for="sim-predio">Consumo do prédio no mês</label>
-              <div class="input-wrap"><input id="sim-predio" name="predio" type="text" inputmode="decimal" value="240" autocomplete="off" aria-describedby="sim-predio-err" /><span aria-hidden="true">m³</span></div>
-              <p class="field-err" aria-live="polite" id="sim-predio-err"></p>
-            </div>
-            <div class="field">
-              <label for="sim-unidade">Consumo do seu apartamento</label>
-              <div class="input-wrap"><input id="sim-unidade" name="unidade" type="text" inputmode="decimal" value="12" autocomplete="off" aria-describedby="sim-unidade-err" /><span aria-hidden="true">m³</span></div>
-              <p class="field-err" aria-live="polite" id="sim-unidade-err"></p>
-            </div>
-          </form>
-
-          <div class="sim-result" aria-live="polite" aria-atomic="true">
-            <div class="sim-row">
-              <p class="sim-value"><span data-out="igual">R$ 400,00</span> <span class="sim-label">dividindo a conta em partes iguais</span></p>
-              <div class="sim-bar" aria-hidden="true"><span data-bar="igual"></span></div>
-            </div>
-            <div class="sim-row is-fair">
-              <p class="sim-value"><span data-out="justo">R$ 240,00</span> <span class="sim-label">pelo que o seu apartamento usou</span></p>
-              <div class="sim-bar" aria-hidden="true"><span data-bar="justo"></span></div>
-            </div>
-            <p class="sim-diff" data-out="diff">Você pagaria R$ 160,00 a menos por mês.</p>
-            <p class="sim-foot">Cálculo simplificado: não considera tarifa mínima, áreas comuns nem faixas de consumo da concessionária.</p>
-          </div>
-        </div>
       </section>
+
+      <div class="wave wave-lines" data-wave="lines" aria-hidden="true"></div>
 
       <!-- Como funciona: três etapas que crescem -->
       <section class="como" id="como-funciona" aria-labelledby="como-title">
@@ -188,6 +152,8 @@
           </li>
         </ol>
       </section>
+
+      <div class="wave wave-lines" data-wave="lines" aria-hidden="true"></div>
 
       <!-- Benefícios: pontos marcados por forma -->
       <section class="beneficios" id="beneficios" aria-labelledby="ben-title">
@@ -228,17 +194,21 @@
       <!-- Conformidade: faixa de nomes -->
       <section class="conformidade" id="conformidade" aria-labelledby="conf-title">
         <h2 id="conf-title" class="sr-only">Conformidade</h2>
+        <div class="wave wave-ice" data-wave="fill" aria-hidden="true"></div>
         <div class="band" aria-hidden="true">
           <div class="band-track">
             <span>Lei 13.312/2016</span><span>Inmetro</span><span>Saída de pulso</span><span>Medição individualizada</span>
             <span>Lei 13.312/2016</span><span>Inmetro</span><span>Saída de pulso</span><span>Medição individualizada</span>
           </div>
         </div>
+        <div class="wave wave-ice wave-flip" data-wave="fill" aria-hidden="true"></div>
         <div class="conf-text" data-enter>
           <p><strong>Lei 13.312/2016.</strong> Torna obrigatória a medição individualizada do consumo de água nas novas edificações em condomínio.</p>
           <p><strong>Inmetro.</strong> Os hidrômetros que instalamos são certificados pelo Inmetro e têm saída de pulso.</p>
         </div>
       </section>
+
+      <div class="wave wave-lines" data-wave="lines" aria-hidden="true"></div>
 
       <!-- Painel: objeto sobre um disco -->
       <section class="painel" id="painel" aria-labelledby="painel-title">
@@ -336,6 +306,8 @@
         </div>
       </section>
 
+      <div class="wave wave-lines" data-wave="lines" aria-hidden="true"></div>
+
       <!-- Contato: fechamento grande -->
       <section class="contato" id="contato" aria-labelledby="contato-title">
         <h2 id="contato-title" class="h-xl" data-enter><span>Vamos medir</span> <span>o seu prédio?</span></h2>
@@ -361,6 +333,7 @@
       </section>
     </main>
 
+    <div class="wave wave-foot" data-wave="fill" aria-hidden="true"></div>
     <footer class="foot">
       <div class="foot-grid">
         <div class="foot-brand">

@@ -1,66 +1,4 @@
-// Interações das seções: simulador de rateio e abas do painel.
-
-const brl = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
-
-// aceita "4.800,00", "4800,5", "4800.50" e "240"
-function parseNumber(raw) {
-  let t = String(raw).trim().replace(/\s|R\$/g, "");
-  if (!t) return NaN;
-  if (t.includes(",")) t = t.replace(/\./g, "").replace(",", ".");
-  else if (/^\d{1,3}(\.\d{3})+$/.test(t)) t = t.replace(/\./g, "");
-  return /^\d*\.?\d+$/.test(t) ? Number(t) : NaN;
-}
-
-export function setupSimulator() {
-  const form = document.getElementById("simulador");
-  if (!form) return;
-  const out = (k) => document.querySelector(`[data-out="${k}"]`);
-  const bar = (k) => document.querySelector(`[data-bar="${k}"]`);
-
-  const rules = {
-    total: (v) => (v > 0 ? "" : "Informe um valor maior que zero."),
-    unidades: (v) => (Number.isInteger(v) && v >= 2 ? "" : "Informe um número inteiro, a partir de 2."),
-    predio: (v) => (v > 0 ? "" : "Informe o consumo em m³, maior que zero."),
-    unidade: (v, all) =>
-      !(v >= 0) ? "Informe o consumo em m³." : v > all.predio ? "Não pode ser maior que o consumo do prédio." : "",
-  };
-
-  function update() {
-    const values = {};
-    for (const name of Object.keys(rules)) values[name] = parseNumber(form.elements[name].value);
-    let ok = true;
-    for (const [name, rule] of Object.entries(rules)) {
-      const msg = rule(values[name], values);
-      const input = form.elements[name];
-      input.closest(".field").classList.toggle("has-error", Boolean(msg));
-      input.setAttribute("aria-invalid", msg ? "true" : "false");
-      document.getElementById(`${input.id}-err`).textContent = msg;
-      if (msg) ok = false;
-    }
-    if (!ok) {
-      out("diff").textContent = "Corrija os campos marcados para ver o resultado.";
-      return;
-    }
-    const igual = values.total / values.unidades;
-    const justo = values.total * (values.unidade / values.predio);
-    out("igual").textContent = brl.format(igual);
-    out("justo").textContent = brl.format(justo);
-    const max = Math.max(igual, justo) || 1;
-    bar("igual").style.setProperty("--w", `${(igual / max) * 100}%`);
-    bar("justo").style.setProperty("--w", `${(justo / max) * 100}%`);
-    const d = igual - justo;
-    out("diff").textContent =
-      Math.abs(d) < 0.005
-        ? "Nesse caso, os dois jeitos dão o mesmo valor."
-        : d > 0
-          ? `Você pagaria ${brl.format(d)} a menos por mês.`
-          : `Você pagaria ${brl.format(-d)} a mais por mês, porque usa mais que a média.`;
-  }
-
-  form.addEventListener("input", update);
-  form.addEventListener("submit", (e) => { e.preventDefault(); update(); });
-  update();
-}
+// Interações das seções: abas do painel e ondas decorativas.
 
 export function setupTabs() {
   const list = document.querySelector('.painel [role="tablist"]');
@@ -93,4 +31,33 @@ export function setupTabs() {
     e.preventDefault();
     select(tabs[(next + tabs.length) % tabs.length], true);
   });
+}
+
+// Ondas decorativas: cada camada desenha dois períodos idênticos e desliza
+// meio caminho (-50%) em loop, então a emenda nunca aparece.
+const WAVE = {
+  // [y da crista, y do vale, ondas por tela] num viewBox de 2400 × 100 (duas telas)
+  path([top, bottom, perScreen], fill) {
+    const mid = (top + bottom) / 2;
+    const w = 1200 / perScreen; // largura de uma onda
+    let d = `M0,${mid}`;
+    for (let x = 0; x < 2400; x += w) {
+      d += ` C${x + w / 6},${top} ${x + w / 3},${top} ${x + w / 2},${mid} S${x + (5 * w) / 6},${bottom} ${x + w},${mid}`;
+    }
+    return d + (fill ? " L2400,100 L0,100 Z" : "");
+  },
+  layers: {
+    lines: [[20, 80, 2], [35, 65, 3], [8, 92, 1]],
+    fill: [[0, 80, 2], [20, 95, 3]],
+  },
+};
+
+export function setupWaves() {
+  for (const el of document.querySelectorAll("[data-wave]")) {
+    const kind = el.dataset.wave;
+    const fill = kind !== "lines";
+    el.innerHTML = WAVE.layers[fill ? "fill" : "lines"]
+      .map((layer, i) => `<svg class="wave-layer wave-layer-${i + 1}" viewBox="0 0 2400 100" preserveAspectRatio="none" focusable="false"><path d="${WAVE.path(layer, fill)}" /></svg>`)
+      .join("");
+  }
 }

@@ -4,7 +4,7 @@ import "@fontsource/inter/latin-400.css";
 import "@fontsource/inter/latin-600.css";
 import "./styles.css";
 import { setupMotion } from "./motion.js";
-import { setupSimulator, setupTabs } from "./sections.js";
+import { setupTabs, setupWaves } from "./sections.js";
 
 const params = new URLSearchParams(location.search);
 const reduced = !document.documentElement.classList.contains("motion");
@@ -51,7 +51,7 @@ if (params.has("poster")) {
 } else {
   const visual = document.querySelector(".show-visual");
   if (visual && !reduced) hasFastWebGL().then((fast) => fast && mount3d(visual));
-  setupSimulator();
+  setupWaves();
   setupTabs();
   setupMotion({ reduced, meter });
 }
